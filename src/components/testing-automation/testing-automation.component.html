@@ -1,0 +1,578 @@
+<!-- TopBar -->
+<header class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b">
+  <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <!-- <div class="h-7 w-7 rounded-lg" [ngStyle]="{background: BRAND}"></div> -->
+      <span class="text-sm font-semibold tracking-wide">
+        {{ screen === 'DASH' ? 'Eerly AI ·Testing Automation'
+        : screen === 'NEW' ? 'Eerly AI ·Testing Automation'
+        : screen === 'SCRIPT' ? 'Eerly AI ·Testing Automation'
+        : screen === 'PKGS' ? 'Eerly AI ·Testing Automation'
+        : screen === 'PKG_DETAIL' ? 'Eerly AI ·Testing Automation'
+        : screen === 'EXEC' ? 'Eerly AI ·Testing Automation'
+        : screen === 'RUNS' ? 'Eerly AI ·Testing Automation'
+        : screen === 'EVID' ? 'Eerly AI ·Testing Automation'
+        : 'Eerly AI ·Testing Automation' }}
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-1 rounded-lg text-white" [ngStyle]="{background: BRAND}" (click)="topNew()">+ New Script
+        (AI)</button>
+      <button class="px-3 py-1 border rounded-lg" (click)="topPkgs()">Packages</button>
+      <button class="px-3 py-1 border rounded-lg" (click)="topRuns()">Runs</button>
+      <button class="px-3 py-1 border rounded-lg" (click)="topEvid()">Evidence</button>
+      <!-- <button class="px-3 py-1 border rounded-lg" (click)="topCov()">Coverage</button> -->
+      <button class="px-3 py-1 border rounded-lg" (click)="openImport()">Import from Config Hub</button>
+      <!-- <div class="w-8 h-8 rounded-full bg-gray-300"></div> -->
+    </div>
+    <!-- <ng-template #backBtnBlock>
+      <button class="px-3 py-1 border rounded-lg" (click)="goDash()">Back</button>
+    </ng-template> -->
+  </div>
+</header>
+
+<!-- Screens -->
+<main class="mx-auto max-w-7xl px-6 py-6 space-y-6">
+  <!-- ===== DASH ===== -->
+  <section *ngIf="screen==='DASH'">
+    <!-- KPIs -->
+    <div class="grid grid-cols-5 gap-4">
+      <div class="bg-white rounded-2xl border p-4">
+        <div class="text-xs text-gray-500">Total Scripts</div>
+        <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals().total }}</div>
+      </div>
+      <div class="bg-white rounded-2xl border p-4">
+        <div class="text-xs text-gray-500">Pass</div>
+        <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals().passed }}</div>
+      </div>
+      <div class="bg-white rounded-2xl border p-4">
+        <div class="text-xs text-gray-500">Fail</div>
+        <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals().failed }}</div>
+      </div>
+      <div class="bg-white rounded-2xl border p-4">
+        <div class="text-xs text-gray-500">Eerly Coverage Score</div>
+        <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals().coverage }}%</div>
+        <div class="text-xs text-gray-500 mt-1">Traceable to spec</div>
+      </div>
+      <div class="bg-white rounded-2xl border p-4">
+        <div class="text-xs text-gray-500">Active Jobs</div>
+        <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals().active }}</div>
+        <div class="text-xs text-gray-500 mt-1">background</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6 mt-6">
+      <!-- Scripts table -->
+      <main class="col-span-9 bg-white rounded-2xl border overflow-hidden">
+        <div class="px-4 py-3 border-b flex items-center justify-between bg-white">
+          <div class="font-semibold text-gray-800">Scripts</div>
+          <button class="px-2 py-1 border rounded text-xs" (click)="topNew()">+ New</button>
+        </div>
+        <div class="p-3">
+          <div class="flex items-center gap-2 mb-3">
+            <input [(ngModel)]="dashSearchTerm" class="rounded-lg border px-3 py-1.5 text-sm"
+              placeholder="Search scripts or spec...">
+            <select [(ngModel)]="dashStatusFilter" class="rounded-lg border px-2 py-1.5 text-sm">
+              <option value="all">All</option>
+              <option value="pass">Pass</option>
+              <option value="fail">Fail</option>
+            </select>
+          </div>
+
+          <table class="w-full text-sm">
+            <thead class="text-left text-gray-500">
+              <tr>
+                <th class="py-2">ID</th>
+                <th>Name</th>
+                <th>Spec</th>
+                <th>Types</th>
+                <th>Owner</th>
+                <th>Last</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t" *ngFor="let s of dashFiltered; trackBy: trackByScriptId">
+                <td class="py-2 font-mono text-xs">{{ s.id }}</td>
+                <td>{{ s.name }}</td>
+                <td class="font-mono text-xs">{{ s.spec }}</td>
+                <td class="text-xs space-x-1">
+                  <ng-container *ngFor="let t of s.types">
+                    <span class="pill" [ngClass]="{
+                      'bg-green-100 text-green-700': t==='happy',
+                      'bg-blue-100 text-blue-700': t==='edge',
+                      'bg-amber-100 text-amber-700': t==='negative'
+                    }">{{ t }}</span>
+                  </ng-container>
+                </td>
+                <td>{{ s.owner }}</td>
+                <td>
+                  <span class="pill" [ngClass]="{
+                    'bg-green-100 text-green-700': s.last==='pass',
+                    'bg-red-100 text-red-700': s.last==='fail',
+                    'bg-gray-100 text-gray-700': s.last!=='pass' && s.last!=='fail'
+                  }">{{ s.last }}</span>
+                </td>
+                <td class="text-right">
+                  <div class="flex gap-2 justify-end items-center relative">
+                    <button class="px-2 py-1 border rounded text-xs" (click)="openEditorById(s.id)">Edit</button>
+
+                    <button class="px-2 py-1 border rounded text-xs" (click)="toggleRunMenuFor(s.id)">Run ▾</button>
+                    <div class="absolute right-0 top-6 w-36 bg-white border rounded shadow text-xs z-20"
+                      *ngIf="runMenuOpenFor===s.id">
+                      <button class="w-full text-left px-3 py-2 hover:bg-gray-50"
+                        (click)="currentRunId = enqueueRun('script', s.id, 'dry'); setScreen('EXEC')">Dry run</button>
+                      <button class="w-full text-left px-3 py-2 hover:bg-gray-50"
+                        (click)="currentRunId = enqueueRun('script', s.id, 'full'); setScreen('EXEC')">Full run</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+
+      <!-- Quick actions -->
+      <aside class="col-span-3 bg-white border rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 border-b font-semibold">Quick Actions</div>
+        <div class="p-4 space-y-2 text-sm">
+          <button class="w-full px-3 py-2 border rounded text-left" (click)="topNew()">Generate test from spec
+            FIN-APR-001</button>
+          <button class="w-full px-3 py-2 border rounded text-left" (click)="topPkgs()">Create month-end
+            package</button>
+          <button class="w-full px-3 py-2 border rounded text-left" (click)="topRuns()">Show failing runs</button>
+          <!-- <button class="w-full px-3 py-2 border rounded text-left" (click)="topCov()">Open Coverage Map</button> -->
+        </div>
+        <div class="p-4 border-t text-xs text-gray-500">Coach: Use "Import from Config Hub" to seed tests directly from
+          requirements.</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===== NEW ===== -->
+  <section *ngIf="screen==='NEW'">
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Left Section -->
+      <aside class="col-span-4 bg-white border rounded-2xl p-4 flex flex-col">
+        <div class="font-semibold text-gray-800 mb-2">Describe your test</div>
+
+        <!-- Prompt -->
+        <textarea [(ngModel)]="newPrompt" class="w-full h-40 border rounded-lg p-2 text-sm"
+          placeholder="e.g., Log in as Payroll Manager, create JE over 50k and verify 2-step approval is required"></textarea>
+
+        <!-- Link to Spec -->
+        <div class="mt-3">
+          <label class="text-sm text-gray-600">Link to Spec</label>
+          <input [(ngModel)]="newSpec" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm" />
+        </div>
+
+        <!-- Upload -->
+        <div class="mt-3">
+          <label
+            class="w-full flex items-center justify-center gap-2 px-3 py-2 border rounded-lg text-sm cursor-pointer bg-gray-50 hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#052c65]" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-4-4m4 4l4-4" />
+            </svg>
+            <span class="text-[#052c65] font-medium">Upload File</span>
+            <input type="file" class="hidden" />
+          </label>
+        </div>
+
+        <!-- Buttons -->
+        <div class="mt-4 flex flex-wrap gap-2 justify-end">
+          <button class="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50" (click)="genFromPrompt()">
+            Generate
+          </button>
+          <button class="px-4 py-2 rounded-lg bg-[#052c65] text-white text-sm hover:bg-[#041f47]" (click)="saveNew()">
+            Next
+          </button>
+          <button class="px-4 py-2 rounded-lg bg-[#052c65] text-white text-sm hover:bg-[#041f47]" (click)="saveNew()">
+            Go To Packages
+          </button>
+        </div>
+
+        <div class="mt-3 text-xs text-gray-500">
+          Coach: You can edit steps later; Save stays non-destructive.
+        </div>
+      </aside>
+
+      <!-- Right Section -->
+      <main class="col-span-8 bg-white border rounded-2xl p-4">
+        <div class="font-semibold text-gray-800 mb-2">Generated Steps</div>
+        <ol class="list-decimal pl-6 text-sm text-gray-700 space-y-2">
+          <li class="border rounded p-2" *ngFor="let st of newDraft">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-medium">{{ st.action }}</span> → <span>{{ st.target }}</span>
+              </div>
+              <button class="text-xs px-2 py-1 border rounded hover:bg-red-50 text-red-600 border-red-300"
+                (click)="removeDraftStep(st.id)">
+                Remove
+              </button>
+            </div>
+            <div class="text-xs text-gray-500" *ngIf="st.value">Value: {{ st.value }}</div>
+            <div class="text-xs text-gray-500">Assert: {{ st.assert }}</div>
+          </li>
+        </ol>
+      </main>
+    </div>
+    <button class="mt-3 px-3 py-1 border rounded-lg" (click)="goDash()">Back</button>
+  </section>
+
+  <!-- ===== SCRIPT (Editor) ===== -->
+  <section *ngIf="screen==='SCRIPT' && editScript as s">
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Left Sidebar -->
+      <aside class="col-span-3 bg-white border rounded-2xl p-4 box-border overflow-hidden">
+        <div class="font-semibold text-gray-800 mb-2">Script</div>
+        <input class="w-full border rounded-lg px-3 py-2 box-border" [(ngModel)]="s.name">
+        <div class="text-xs text-gray-500 mt-2">Owner: <span>{{ s.owner }}</span></div>
+        <div class="mt-4 flex gap-2">
+          <button class="px-3 py-1 border rounded text-sm" (click)="addStep()">+ Step</button>
+          <button class="px-3 py-1 border rounded text-sm" (click)="clearSteps()">Clear</button>
+        </div>
+        <div class="mt-4 text-xs text-gray-500">
+          Linked to Config Hub requirement <span>{{ s.spec }}</span>
+        </div>
+      </aside>
+
+      <!-- Middle Steps Section -->
+      <main class="col-span-6 bg-white border rounded-2xl p-4 box-border overflow-hidden">
+        <div class="font-semibold text-gray-800 mb-2">Steps</div>
+        <ol class="list-decimal pl-6 text-sm text-gray-700 space-y-3">
+          <li class="border rounded p-3 space-y-2" *ngFor="let st of s.steps; let idx = index">
+            <div class="grid grid-cols-4 gap-2 items-center">
+              <input class="border rounded px-2 py-1 w-full box-border" [ngModel]="st.action"
+                (ngModelChange)="updateStepField(idx, 'action', $event)">
+              <input class="border rounded px-2 py-1 w-full box-border" [ngModel]="st.target"
+                (ngModelChange)="updateStepField(idx, 'target', $event)">
+              <input class="border rounded px-2 py-1 w-full box-border" [ngModel]="st.assert"
+                (ngModelChange)="updateStepField(idx, 'assert', $event)">
+              <input class="border rounded px-2 py-1 w-full font-mono text-xs box-border" [ngModel]="st.selector || ''"
+                placeholder="selector (optional)" (ngModelChange)="updateStepField(idx, 'selector', $event)">
+            </div>
+            <div class="flex gap-2">
+              <button class="text-xs px-2 py-1 border rounded" (click)="moveStepUp(idx)">Move ↑</button>
+              <button class="text-xs px-2 py-1 border rounded" (click)="moveStepDown(idx)">Move ↓</button>
+            </div>
+          </li>
+        </ol>
+      </main>
+
+      <!-- Right Sidebar -->
+      <aside class="col-span-3 bg-white border rounded-2xl p-4 text-sm box-border overflow-hidden">
+        <div class="font-semibold text-gray-800">Self-Healing (Selector)</div>
+        <div class="mt-2 text-xs text-gray-500">Target: <span class="font-mono">Amount</span></div>
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <div class="border rounded p-2 overflow-auto">
+            <div class="text-xs text-gray-500 mb-1">Before</div>
+            <pre class="text-[11px] leading-snug whitespace-pre-wrap">{{ healBeforeSelector }}</pre>
+          </div>
+          <div class="border rounded p-2 overflow-auto">
+            <div class="text-xs text-gray-500 mb-1">After</div>
+            <pre class="text-[11px] leading-snug whitespace-pre-wrap">
+role=textbox[name='Amount'][aria-invalid=false]
+        </pre>
+          </div>
+        </div>
+        <div class="mt-3 flex gap-2">
+          <button class="px-2 py-1 border rounded text-xs" (click)="applyHeal()">Apply Fix</button>
+          <button class="px-2 py-1 border rounded text-xs" (click)="applyHealAndRun()">Apply & re-run</button>
+        </div>
+
+        <div class="mt-4 border-t pt-3">
+          <div class="font-semibold text-gray-800">Ask Eerly</div>
+          <div class="text-xs text-gray-500 mb-2">Suggest selectors or assertions</div>
+          <div class="flex items-center gap-2">
+            <input [(ngModel)]="miniMsg" class="flex-1 border rounded px-2 py-1 text-sm box-border"
+              placeholder="e.g., date picker field">
+            <button class="px-2 py-1 border rounded text-sm" (click)="miniSend()">Send</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="flex gap-2 mt-6 justify-end">
+      <button class="px-4 py-2 border rounded-lg text-sm" (click)="goDash()">Back</button>
+      <button class="px-4 py-2 border rounded-lg bg-[#052c65] text-white text-sm hover:bg-[#041f47]"
+        (click)="saveScript()">Save</button>
+
+      <div class="relative inline-block">
+        <button class="px-3 py-2 border rounded-lg text-sm" (click)="toggleEdRunMenu()">Run ▾</button>
+        <div class="absolute right-0 mt-1 w-36 bg-white border rounded shadow text-xs z-20" *ngIf="edRunMenuOpen">
+          <button class="w-full text-left px-3 py-2 hover:bg-gray-50" (click)="runScript('dry')">Dry run</button>
+          <button class="w-full text-left px-3 py-2 hover:bg-gray-50" (click)="runScript('full')">Full run</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===== PKGS ===== -->
+  <section *ngIf="screen==='PKGS'">
+    <div class="grid grid-cols-12 gap-6">
+      <aside class="col-span-4 bg-white border rounded-2xl p-4">
+        <div class="font-semibold text-gray-800 mb-2">Create Package</div>
+        <input [(ngModel)]="pkgName" class="w-full border rounded px-2 py-1 mb-2" placeholder="Package name">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="text-xs text-gray-500">Environment</div>
+            <select [(ngModel)]="pkgEnv" class="w-full border rounded px-2 py-1">
+              <option>UAT</option>
+              <option>SIT</option>
+              <option>PRD (read-only)</option>
+            </select>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500">Dataset</div>
+            <input [(ngModel)]="pkgData" class="w-full border rounded px-2 py-1">
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-500 mt-2">Include scripts</div>
+        <div class="max-h-64 overflow-auto border rounded">
+          <label class="flex items-center gap-2 px-2 py-1 border-b text-sm" *ngFor="let s of scripts">
+            <input type="checkbox" [(ngModel)]="pkgInclude[s.id]">
+            <span>{{ s.name }}</span>
+            <span class="ml-auto font-mono text-xs text-gray-500">{{ s.id }}</span>
+          </label>
+        </div>
+
+        <button class="mt-3 px-3 py-1 border rounded" (click)="createPackage()">Create</button>
+      </aside>
+
+      <main class="col-span-8 space-y-3">
+        <div class="bg-white border rounded-2xl p-4 flex items-center justify-between" *ngFor="let p of packages">
+          <div>
+            <div class="font-semibold text-gray-800">{{ p.name }}</div>
+            <div class="text-xs text-gray-500">
+              {{ p.scripts.length }} scripts • Env {{ p.env }} • Data {{ p.dataset }} • Last: {{ p.lastRun.status }}
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="px-2 py-1 border rounded text-xs" (click)="openPkgDetail(p)">Open</button>
+            <button class="px-2 py-1 border rounded text-xs" (click)="runPackage(p)">Run ▾</button>
+          </div>
+        </div>
+      </main>
+    </div>
+    <button class="mt-3 px-3 py-1 border rounded-lg" (click)="goDash()">Back</button>
+  </section>
+
+  <!-- ===== PKG DETAIL ===== -->
+  <section *ngIf="screen==='PKG_DETAIL' && selectedPackage as p">
+    <div class="max-w-5xl mx-auto bg-white border rounded-2xl overflow-hidden">
+      <div class="px-4 py-3 border-b flex items-center justify-between bg-white">
+        <div class="font-semibold">Package: {{ p.name }}</div>
+        <div>
+          <button class="px-2 py-1 border rounded text-xs" (click)="runPackage(p)">Run ▾</button>
+        </div>
+      </div>
+      <div class="p-4 space-y-2 text-sm">
+        <div class="flex items-center justify-between border rounded p-2" *ngFor="let s of scriptsByIds(p.scripts)">
+          <div>
+            <div class="font-medium text-gray-800">{{ s.name }}</div>
+            <div class="text-xs text-gray-500">{{ s.id }} • Spec {{ s.spec }}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="pill" [ngClass]="{
+              'bg-green-100 text-green-700': s.last==='pass',
+              'bg-red-100 text-red-700': s.last==='fail',
+              'bg-gray-100 text-gray-700': s.last!=='pass' && s.last!=='fail'
+            }">{{ s.last }}</span>
+            <button class="px-2 py-1 border rounded text-xs" (click)="openEditorById(s.id)">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="mt-3 px-3 py-1 border rounded-lg" (click)="setScreen('PKGS')">Back</button>
+  </section>
+
+  <!-- ===== EXEC ===== -->
+  <section *ngIf="screen==='EXEC'">
+    <div class="grid grid-cols-12 gap-6">
+      <main class="col-span-8 space-y-4">
+        <div class="bg-white border rounded-2xl p-4">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold text-gray-800">Live VPC Session</div>
+            <div class="text-xs text-gray-600">
+              {{ currentRun ? (currentRun.kind.toUpperCase() + ' • ' + currentRun.refId + ' • ' + currentRun.id) : 'No
+              active run' }}
+            </div>
+          </div>
+
+          <div class="mt-3 border rounded-xl overflow-hidden h-72 bg-black flex items-center justify-center text-white">
+            <div class="text-sm opacity-80">
+              {{ currentRun ? (currentRun.progress + '%') : 'idle' }}
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+              <div class="h-3" [ngStyle]="{background: BRAND, width: (currentRun?.progress || 0) + '%'}"></div>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 mt-1" [attr.aria-live]="'polite'">{{ ariaLive }}</div>
+
+          <div class="mt-3 flex gap-2">
+            <button class="px-3 py-1 border rounded" (click)="exStart()">Start/Resume</button>
+            <button class="px-3 py-1 border rounded" (click)="exPause()">Pause</button>
+            <button class="px-3 py-1 border rounded" (click)="exStop()">Stop</button>
+            <button class="px-3 py-1 border rounded" (click)="exDownload()">Download Evidence</button>
+          </div>
+        </div>
+
+        <div class="bg-white border rounded-2xl p-4">
+          <div class="font-semibold text-gray-800">Evidence</div>
+          <div class="grid grid-cols-3 gap-3 mt-3">
+            <div class="border rounded-lg p-2 text-sm" *ngFor="let e of (currentRun?.evidence || [])">
+              <div class="text-xs text-gray-500">{{ e.ts | date:'shortTime' }}</div>
+              <div>{{ e.text }}</div>
+              <img *ngIf="e.screenshot" [src]="e.screenshot" class="w-full h-24 object-cover mt-2">
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="col-span-4">
+        <div class="bg-white border rounded-2xl overflow-hidden h-full flex flex-col">
+          <div class="px-4 py-3 border-b font-semibold">Step Log</div>
+
+          <div class="p-3 space-y-2 text-xs overflow-y-auto" style="max-height: calc(100vh - 260px)">
+            <div class="border rounded p-2" *ngFor="let l of (currentRun?.logs || [])">{{ l }}</div>
+            <div *ngIf="!(currentRun?.logs?.length)">No logs</div>
+          </div>
+
+          <div class="p-3 border-t flex items-center gap-2 text-sm">
+            <button class="px-2 py-1 border rounded" (click)="exShot()">Capture Screenshot</button>
+            <button class="px-2 py-1 border rounded" (click)="exNote()">Add Note</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <button class="mt-3 px-3 py-1 border rounded-lg" (click)="setScreen('RUNS')">Back to Runs</button>
+  </section>
+
+  <!-- ===== RUNS ===== -->
+  <section *ngIf="screen==='RUNS'">
+    <div class="max-w-5xl mx-auto bg-white border rounded-2xl overflow-hidden">
+      <div class="px-4 py-3 border-b flex items-center justify-between bg-white">
+        <div class="font-semibold text-gray-800">Background Jobs</div>
+        <div class="flex items-center gap-2">
+          <input [(ngModel)]="runsSearch" class="rounded-lg border px-3 py-1.5 text-sm" placeholder="Search jobs...">
+        </div>
+      </div>
+      <div class="p-4">
+        <table class="w-full text-sm">
+          <thead class="text-left text-gray-500">
+            <tr>
+              <th class="py-2">Run</th>
+              <th>Kind</th>
+              <th>Ref</th>
+              <th>Mode</th>
+              <th>Status</th>
+              <th>Progress</th>
+              <th>Started</th>
+              <th>Finished</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-t" *ngFor="let job of filteredRuns">
+              <td class="py-2 font-mono text-xs">{{ job.id }}</td>
+              <td>{{ job.kind }}</td>
+              <td>{{ job.refId }}</td>
+              <td>{{ job.mode }}</td>
+              <td>
+                <span class="pill" [ngClass]="{
+                'bg-green-100 text-green-700': job.status==='done',
+                'bg-blue-100 text-blue-700': job.status==='running',
+                'bg-amber-100 text-amber-700': job.status==='queued',
+                'bg-red-100 text-red-700': job.status==='failed'
+              }">{{ job.status }}</span>
+              </td>
+              <td style="width:160px">
+                <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                  <div class="h-3" [ngStyle]="{background: BRAND, width: (job.progress||0) + '%'}"></div>
+                </div>
+              </td>
+              <td class="font-mono text-xs">{{ job.startedAt ? (job.startedAt | date: 'shortTime') : '-' }}</td>
+              <td class="font-mono text-xs">{{ job.finishedAt ? (job.finishedAt | date: 'shortTime') : '-' }}</td>
+              <td class="text-right"><button class="px-2 py-1 border rounded text-xs"
+                  (click)="openRun(job.id)">Open</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button class="mt-3 px-3 py-1 border rounded-lg" (click)="goDash()">Back</button>
+  </section>
+
+  <!-- ===== EVIDENCE ===== -->
+  <section *ngIf="screen==='EVID'">
+    <div class="grid grid-cols-12 gap-6">
+      <main class="col-span-9 bg-white border rounded-2xl p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="font-semibold text-gray-800">Evidence Bundles</div>
+          <!-- Upload button -->
+          <label class="px-3 py-1 rounded-lg text-white cursor-pointer" [ngStyle]="{ 'background-color': BRAND }">
+            Upload Evidence
+            <input type="file" hidden  multiple>
+          </label>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 mt-3">
+          <div class="border rounded-lg p-2 text-sm" *ngFor="let e of allEvidence">
+            <div class="text-xs text-gray-500">{{ e.ts | date:'medium' }}</div>
+            <div>{{ e.text }}</div>
+            <div class="text-xs text-gray-500">Run: {{ e.jobId }} • {{ e.kind }} • {{ e.ref }}</div>
+            <img *ngIf="e.screenshot" [src]="e.screenshot" class="w-full h-24 object-cover mt-2">
+            <div class="mt-2 flex gap-2">
+              <button class="px-2 py-1 border rounded text-xs">Download</button>
+              <button class="px-2 py-1 border rounded text-xs" (click)="openRun(e.jobId)">Open Run</button>
+            </div>
+          </div>
+          <div *ngIf="!allEvidence.length" class="text-sm text-gray-500">No evidence yet.</div>
+        </div>
+      </main>
+
+      <aside class="col-span-3 bg-white border rounded-2xl p-4 text-sm">
+        <div class="font-semibold text-gray-800">Risk & Coverage</div>
+        <div class="mt-2">Finance: 92% covered</div>
+        <div>Tax: 68% covered</div>
+        <div>Integrations: 74% covered</div>
+        <div class="text-xs text-gray-500 mt-2">Coverage driven by linkage to requirements.</div>
+      </aside>
+    </div>
+
+    <button class="mt-3 px-3 py-1 border rounded-lg" (click)="goDash()">Back</button>
+  </section>
+
+  <!-- ===== COVERAGE ===== -->
+
+</main>
+
+<!-- ===== Import Modal ===== -->
+<div class="fixed inset-0 bg-black/40 items-center justify-center p-6 z-30" [class.hidden]="!importOpen"
+  [class.flex]="importOpen">
+  <div class="bg-white w-[600px] rounded-2xl overflow-hidden shadow-2xl">
+    <div class="px-4 py-3 border-b font-semibold">Import from Config Hub</div>
+    <div class="p-4 space-y-2 text-sm">
+      <div class="border rounded-lg p-3 flex items-center justify-between" *ngFor="let p of CONFIG_HUB">
+        <div>
+          <div class="font-medium text-gray-800">{{ p.name }}</div>
+          <div class="text-xs text-gray-500">{{ p.id }} • {{ p.specs.length }} specs</div>
+        </div>
+        <button class="px-3 py-1 border rounded" (click)="doImport(p)">Import</button>
+      </div>
+    </div>
+    <div class="px-4 pb-4 flex justify-end">
+      <button class="px-3 py-1 border rounded" (click)="closeImport()">Close</button>
+    </div>
+  </div>
+</div>

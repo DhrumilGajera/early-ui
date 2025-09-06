@@ -1,0 +1,52 @@
+<!-- Floating Chat Icon -->
+<div class="fixed bottom-6 right-6 z-50">
+  <button (click)="toggleChat()"
+    class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg bg-[#052c65] text-white hover:opacity-90 transition">
+    💬
+  </button>
+</div>
+
+<!-- Chat Window (Draggable) -->
+<div *ngIf="isOpen"
+     class="fixed bg-white rounded-2xl shadow-lg border border-gray-200 flex flex-col z-50"
+     [ngStyle]="{'top.px': position.y, 'left.px': position.x, 'width.px': size.width, 'height.px': size.height}">
+
+  <!-- Header (Drag Handle) -->
+  <div class="bg-white border-b rounded-t-2xl flex justify-between items-center p-4 cursor-move"
+       (mousedown)="startDrag($event)">
+    <span class="font-semibold">Eerly AI Consultant</span>
+    <button (click)="toggleChat()" class="text-gray-400 hover:text-gray-600 px-2 py-1 rounded">&times;</button>
+  </div>
+
+  <!-- Chat Feed -->
+  <div id="assistantFeed" class="p-3 space-y-2 text-sm overflow-auto flex-1">
+    <div class="text-xs text-gray-500">Suggested prompts</div>
+    <div class="flex flex-wrap gap-2">
+      <button class="px-2 py-1 border rounded text-xs hover:bg-gray-100">Create Workshop Plan</button>
+      <button class="px-2 py-1 border rounded text-xs hover:bg-gray-100">Show gaps in Coverage</button>
+      <button class="px-2 py-1 border rounded text-xs hover:bg-gray-100">List open decisions</button>
+      <button class="px-2 py-1 border rounded text-xs hover:bg-gray-100">Open latest evidence</button>
+    </div>
+    <div class="border rounded-lg p-2 mt-2">
+      <div class="text-gray-700">User: what changed since v0.9?</div>
+      <div class="text-gray-700 mt-1">Eerly: 3 items—JE threshold wording normalized, SAC feed scheduled, VAT codes harmonized.</div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="p-3 border-t flex items-center gap-2">
+    <input class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#052c65]"
+           placeholder="Ask Eerly anything..." />
+    <button (click)="sendMessage()"
+            class="px-3 py-2 rounded-lg text-white bg-[#052c65] hover:bg-[#031d40] transition">
+      Send
+    </button>
+  </div>
+
+  <!-- Resize Handle (Top-Right) -->
+  <div class="absolute top-0 right-0 w-6 h-6 cursor-ne-resize bg-gray-300 rounded-bl-lg"
+       (mousedown)="startResize($event)"></div>
+</div>
+
+
+

@@ -1,0 +1,222 @@
+<!-- Header -->
+<header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b shadow-sm">
+  <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <!-- <div class="h-8 w-8 rounded-xl bg-[#052c65]" aria-hidden="true"></div> -->
+      <span class="text-sm font-semibold tracking-wide">Eerly AI · Config Hub</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button (click)="openModal()"
+        class="inline-flex items-center gap-2 rounded-lg bg-[#052c65] px-4 py-2 text-white hover:bg-[#041f47] focus:outline-none focus:ring-2 focus:ring-[#052c65]">
+        <span class="text-sm font-semibold">+ New Project</span>
+      </button>
+      <button
+        class="px-3 py-1.5 rounded-lg bg-[#052c65]/5 text-[#052c65] border border-[#052c65]/20 hover:bg-[#052c65]/10 text-sm">
+        Notifications
+      </button>
+      <!-- <div class="w-9 h-9 rounded-full bg-gray-300" aria-label="User menu"></div> -->
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="mx-auto max-w-7xl px-4 py-6 space-y-8">
+  <!-- Metrics -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div *ngFor="let m of metrics" class="rounded-2xl border bg-white p-4">
+      <div class="text-xs text-gray-500">{{ m.label }}</div>
+      <div class="mt-2 text-2xl font-semibold text-gray-900">{{ m.value }}</div>
+      <div class="mt-1 text-xs text-gray-500">{{ m.sub }}</div>
+    </div>
+  </section>
+
+  <!-- Content Row -->
+  <section class="grid grid-cols-12 gap-6">
+    <!-- Projects -->
+    <div class="col-span-12 lg:col-span-8 space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Existing Projects</h2>
+        <div class="flex items-center gap-2">
+          <input [(ngModel)]="projSearch" class="rounded-lg border px-3 py-1.5 text-sm" placeholder="Search projects" />
+          <select [(ngModel)]="statusFilter" class="rounded-lg border px-2 py-1.5 text-sm">
+            <option value="all">All Statuses</option>
+            <option value="In Build">In Build</option>
+            <option value="In Testing">In Testing</option>
+            <option value="Go-Live Ready">Go-Live Ready</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div *ngFor="let p of filteredProjects">
+          <div class="rounded-2xl border bg-white p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="font-medium text-gray-900">{{ p.name }}</div>
+                <div class="mt-1 text-xs text-gray-500">Updated {{ p.updated }}</div>
+              </div>
+              <span class="text-xs border px-3 py-1 rounded-full whitespace-nowrap {{ statusChip(p.status) }}">
+                {{ p.status }}
+              </span>
+            </div>
+            <div class="mt-4 flex gap-2 overflow-x-auto">
+              <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">Open</button>
+              <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">Go to Workshops</button>
+              <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">Open Build Monitor</button>
+              <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">Archive</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Rail -->
+    <div class="col-span-12 lg:col-span-4 space-y-6">
+      <!-- Quick Actions -->
+      <div class="rounded-2xl border bg-white">
+        <div class="border-b px-4 py-3 text-sm font-semibold text-gray-800">Quick Actions</div>
+        <div class="p-4 space-y-2">
+          <button class="w-full justify-start rounded-lg border px-3 py-2 text-left text-sm hover:border-[#052c65]"
+            (click)="openModal()">Start New Project (Wizard)</button>
+          <button class="w-full justify-start rounded-lg border px-3 py-2 text-left text-sm hover:border-[#052c65]">
+            Import Scope from Template
+          </button>
+          <button class="w-full justify-start rounded-lg border px-3 py-2 text-left text-sm hover:border-[#052c65]">
+            Invite Core Team
+          </button>
+          <button class="w-full justify-start rounded-lg border px-3 py-2 text-left text-sm hover:border-[#052c65]">
+            Set Milestones & RACI
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="rounded-2xl border bg-white">
+        <div class="border-b px-4 py-3 text-sm font-semibold text-gray-800">Recent Activity</div>
+        <ul class="p-4 space-y-3 text-sm text-gray-700">
+          <li *ngFor="let act of activity">{{ act }}</li>
+        </ul>
+      </div>
+
+      <!-- Payload -->
+      <div class="rounded-2xl border bg-white">
+        <div class="border-b px-4 py-3 text-sm font-semibold text-gray-800">Last Created Payload</div>
+        <pre class="m-3 rounded-lg bg-gray-900 p-3 text-[11px] leading-relaxed text-gray-100 overflow-auto">
+{{
+  '{ "none": "Create a project to see payload" }'
+}}</pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div *ngIf="modalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center">
+  <div class="absolute inset-0 bg-black/40" (click)="closeModal()"></div>
+  <div class="relative w-full max-w-3xl rounded-2xl bg-white shadow-xl ring-1 ring-black/5"> <!-- Header -->
+    <div class="px-6 pt-5 flex items-center justify-between">
+      <h2 class="text-xl font-semibold">New SAP Project</h2> <button (click)="closeModal()"
+        class="p-2 rounded-lg hover:bg-gray-100">×</button>
+    </div> <!-- Progress -->
+    <div class="mt-4 px-6">
+      <div class="h-2 w-full rounded-full bg-gray-100">
+        <div class="h-2 rounded-full bg-[#052c65]" [style.width.%]="(step/stepsTotal)*100"></div>
+      </div>
+      <p class="mt-2 text-sm text-gray-500">Step {{step}} of {{stepsTotal}} — You can change these later.</p>
+    </div> <!-- Body -->
+    <div class="px-6 py-5"> <!-- STEP 1 -->
+      <section *ngIf="step===1" class="space-y-4"> <!-- Project Name -->
+        <div> <label class="block text-sm font-medium text-gray-700">Project name</label> <input
+            [(ngModel)]="state.name"
+            class="mt-1 w-full rounded-lg border px-3 py-2 text-gray-900 focus:ring-2 focus:ring-[#052c65]"
+            placeholder="e.g., S/4HANA Public Cloud Finance – ME Region" />
+          <p class="mt-1 text-xs text-gray-500">Helpful names include scope + geography.</p>
+        </div> <!-- Industry -->
+        <div> <label class="block text-sm font-medium text-gray-700">Industry</label> <select
+            [(ngModel)]="state.industry"
+            class="mt-1 w-full rounded-lg border px-3 py-2 text-gray-900 focus:ring-2 focus:ring-[#052c65]">
+            <option>General</option>
+            <option>Retail</option>
+            <option>Manufacturing</option>
+            <option>Public Sector</option>
+            <option>Utilities</option>
+            <option>Healthcare</option>
+          </select> </div> <!-- File Upload (Compact & Styled) -->
+        <div> <label class="block text-sm font-medium text-gray-700">Upload supporting document</label>
+          <div class="mt-1 flex items-center gap-2"> <input id="file-upload" type="file"
+              (change)="onFileSelected($event)"
+              class="w-full rounded-lg border px-3 py-2 text-gray-900 focus:ring-2 focus:ring-[#052c65]" /> </div>
+          <p class="mt-1 text-xs text-gray-500">PDF, DOCX, XLSX — max 10MB.</p> <!-- File preview -->
+          <div *ngIf="state.uploadedFile" class="mt-2 text-sm text-gray-700"> Selected file: <strong>{{
+              state.uploadedFile.name }}</strong> </div>
+        </div>
+      </section> <!-- STEP 2 -->
+      <section *ngIf="step === 2">
+        <p class="text-sm text-gray-600 mb-3"> Pick what you know—Eerly will suggest the rest during Workshops. </p>
+        <!-- Input + Add button -->
+        <div class="flex gap-2 mb-3"> <input type="text" [(ngModel)]="newModule" placeholder="Type and press Add"
+            class="flex-1 px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-[#052c65]" />
+          <button (click)="addModule()"
+            class="px-4 py-2 bg-[#052c65] text-white text-sm rounded-xl hover:bg-[#063c85] transition"> Add </button>
+        </div> <!-- Chips -->
+        <div class="flex flex-wrap gap-2">
+          <div *ngFor="let m of state.modules"
+            class="flex items-center gap-2 px-3 py-1 rounded-xl border ring-1 ring-[#052c65] text-sm text-gray-800">
+            <span>{{ m }}</span> <button (click)="removeModule(m)"
+              class="text-gray-500 hover:text-red-600 text-xs font-bold"> ✕ </button> </div>
+        </div>
+      </section> <!-- STEP 3 -->
+      <section *ngIf="step===3" class="space-y-4">
+        <div> <label class="block text-sm font-medium text-gray-700">Start from template</label> <select
+            [(ngModel)]="state.template"
+            class="mt-1 w-full rounded-lg border px-3 py-2 text-gray-900 focus:ring-2 focus:ring-[#052c65]">
+            <option value="s4hana-public-finance-rapid">S/4HANA Public Cloud (Finance) – Rapid Start</option>
+            <option value="successfactors-core">SuccessFactors Core HR – Standard</option>
+            <option value="greenfield-hybrid">Greenfield Hybrid – Guided</option>
+          </select>
+          <p class="mt-1 text-xs text-gray-500">Templates pre-load governance, milestones, and docs.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3"> <label class="flex items-center gap-3 rounded-xl border p-3"> <input
+              type="checkbox" [(ngModel)]="state.includeTesting" class="h-4 w-4" />
+            <div>
+              <div class="text-sm font-medium text-gray-800">Include Testing Automation</div>
+              <div class="text-xs text-gray-500">Generate test suites and track execution.</div>
+            </div>
+          </label> <label class="flex items-center gap-3 rounded-xl border p-3"> <input type="checkbox"
+              [(ngModel)]="state.includeData" class="h-4 w-4" />
+            <div>
+              <div class="text-sm font-medium text-gray-800">Include Data Transformation</div>
+              <div class="text-xs text-gray-500">Create mapping tables and monitor migration.</div>
+            </div>
+          </label> </div>
+      </section> <!-- STEP 4 -->
+      <section *ngIf="step===4" class="space-y-4">
+        <div class="rounded-xl border border-gray-200 p-4">
+          <h3 class="text-sm font-semibold text-gray-800">Review</h3>
+          <dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+            <dt class="text-gray-500">Name</dt>
+            <dd class="text-gray-900">{{state.name || '—'}}</dd>
+            <dt class="text-gray-500">Industry</dt>
+            <dd class="text-gray-900">{{state.industry}}</dd>
+            <dt class="text-gray-500">Modules</dt>
+            <dd class="text-gray-900">{{state.modules.length ? state.modules.join(', ') : '—'}}</dd>
+            <dt class="text-gray-500">Template</dt>
+            <dd class="text-gray-900">{{tplLabel(state.template)}}</dd>
+            <dt class="text-gray-500">Capabilities</dt>
+            <dd class="text-gray-900"> {{ state.includeTesting ? 'Testing Automation' : '' }} {{ state.includeData ?
+              (state.includeTesting ? ', ' : '') + 'Data Transformation' : '' }} {{ !state.includeTesting &&
+              !state.includeData ? '—' : '' }} </dd>
+          </dl>
+        </div>
+        <p class="text-xs text-gray-500">After creation, we’ll generate a starter checklist.</p>
+      </section>
+    </div> <!-- Footer -->
+    <div class="flex items-center justify-between gap-3 border-t px-6 py-4"> <button (click)="back()"
+        [disabled]="step===1"
+        class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"> Back
+      </button>
+      <div class="ml-auto flex gap-2"> <button *ngIf="step<stepsTotal" (click)="next()" [disabled]="!canNext()"
+          class="px-4 py-2 rounded-lg bg-[#052c65] text-white disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed">
+          Next </button> <button *ngIf="step===stepsTotal" (click)="createProject()"
+          class="px-4 py-2 rounded-lg bg-[#052c65] text-white">Create Project</button> </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,570 @@
+<header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+
+        <!-- Left: Section Title -->
+        <div class="flex items-center gap-3">
+            <!-- <div class="h-8 w-8 rounded-xl bg-[#052c65]" aria-hidden="true"></div> -->
+            <span class="text-sm font-semibold tracking-wide">Eerly AI · Data Transformation</span>
+        </div>
+
+        <!-- Center: Navigation Buttons -->
+        <nav class="hidden md:flex items-center gap-3">
+            <button class="px-3 py-1 rounded-lg text-white font-medium hover:brightness-90 transition"
+                [ngStyle]="{ 'background-color': BRAND }" (click)="setScreen('IMPORT')">
+                New Import
+            </button>
+
+            <button class="px-3 py-1 rounded-lg border border-gray-300 font-medium hover:border-gray-400 transition"
+                (click)="setScreen('TABLE')">
+                Field Mapping Table
+            </button>
+
+            <button class="px-3 py-1 rounded-lg border border-gray-300 font-medium hover:border-gray-400 transition"
+                (click)="setScreen('VALIDATE')">
+                Validate
+            </button>
+
+            <button class="px-3 py-1 rounded-lg border border-gray-300 font-medium hover:border-gray-400 transition"
+                (click)="setScreen('RUN')">
+                Run Transform
+            </button>
+
+            <button class="px-3 py-1 rounded-lg border border-gray-300 font-medium hover:border-gray-400 transition"
+                (click)="setScreen('EXPORTS')">
+                Exports
+            </button>
+        </nav>
+
+        <!-- Right: Mobile Menu -->
+        <button class="md:hidden p-2 rounded-lg hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
+</header>
+<main class="min-h-screen bg-gray-50">
+    <!-- Container aligned with header -->
+    <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+        <!-- DASHBOARD -->
+        <section *ngIf="screen === 'DASH'" class="space-y-6">
+            <!-- <div class="grid grid-cols-5 gap-4">
+                <div class="bg-white rounded-xl border p-4 shadow-sm">
+                    <div class="text-xs text-gray-500">Legacy Rows</div>
+                    <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals.legacyRows }}</div>
+                </div>
+                <div class="bg-white rounded-xl border p-4 shadow-sm">
+                    <div class="text-xs text-gray-500">Target Columns</div>
+                    <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals.targetCols }}</div>
+                </div>
+                <div class="bg-white rounded-xl border p-4 shadow-sm">
+                    <div class="text-xs text-gray-500">Mappings</div>
+                    <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals.mappings }}</div>
+                    <div class="text-xs text-gray-500 mt-1">{{ validMappingsCount }} valid</div>
+                </div>
+                <div class="bg-white rounded-xl border p-4 shadow-sm">
+                    <div class="text-xs text-gray-500">Last Run</div>
+                    <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals.lastRunStatus }}</div>
+                </div>
+                <div class="bg-white rounded-xl border p-4 shadow-sm">
+                    <div class="text-xs text-gray-500">Decisions Linked</div>
+                    <div class="text-2xl font-semibold text-gray-900 mt-1">{{ kpiTotals.decisions }}</div>
+                </div>
+            </div> -->
+
+            <div class="grid grid-cols-12 gap-12">
+                <main  class="col-span-12 lg:col-span-12 space-y-4">
+                    <!-- Recent runs -->
+                    <div class="bg-white rounded-xl border overflow-hidden">
+                        <div class="px-4 py-3 border-b flex items-center justify-between bg-white">
+                            <div class="font-semibold text-gray-800">Recent Runs</div>
+                            <button class="px-2 py-1 border rounded text-xs" (click)="setScreen('RUN')">Open</button>
+                        </div>
+                        <div class="p-3">
+                            <table class="w-full text-sm">
+                                <thead class="text-left text-gray-500">
+                                    <tr>
+                                        <th class="py-2">Run</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Progress</th>
+                                        <th>Rows</th>
+                                        <th>Started</th>
+                                        <th>Finished</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let r of runs.slice().reverse().slice(0,6); trackBy: trackByRun"
+                                        class="border-t">
+                                        <td class="py-2 font-mono text-xs">{{ r.id }}</td>
+                                        <td>{{ r.type }}</td>
+                                        <td>
+                                            <span class="text-xs px-2 py-0.5 rounded-full"
+                                                [ngClass]="{'bg-green-100 text-green-700': r.status==='done','bg-blue-100 text-blue-700': r.status==='running','bg-amber-100 text-amber-700': r.status!=='running' && r.status!=='done'}">
+                                                {{ r.status }}
+                                            </span>
+                                        </td>
+                                        <td style="width:160px">
+                                            <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                                                <div class="h-3" [style.background]="BRAND"
+                                                    [style.width.%]="r.progress"></div>
+                                            </div>
+                                        </td>
+                                        <td>{{ r.rowsOut }}</td>
+                                        <td class="font-mono text-xs">{{ r.startedAt ? (r.startedAt | date:'shortTime')
+                                            : '-' }}</td>
+                                        <td class="font-mono text-xs">{{ r.finishedAt ? (r.finishedAt |
+                                            date:'shortTime') : '-' }}</td>
+                                    </tr>
+                                    <tr *ngIf="runs.length === 0">
+                                        <td class="py-4 text-gray-500" colspan="7">No runs yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mapping summary -->
+                    <div class="bg-white rounded-xl border overflow-hidden">
+                        <div class="px-4 py-3 border-b flex items-center justify-between bg-white">
+                            <div class="font-semibold text-gray-800">Mapping Summary</div>
+                            <button class="px-2 py-1 border rounded text-xs" (click)="setScreen('TABLE')">Edit</button>
+                        </div>
+                        <div class="p-3 grid grid-cols-2 gap-3 text-sm">
+                            <div *ngFor="let m of mappings; trackBy: trackByMapping"
+                                class="border rounded-lg p-2 flex items-center justify-between">
+                                <div>
+                                    <span class="font-mono text-xs">{{ m.legacy }}</span> →
+                                    <span class="font-mono text-xs">{{ m.target }}</span>
+                                    <span class="text-xs text-gray-500">({{ m.rule }})</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs px-2 py-0.5 rounded-full"
+                                        [ngClass]="m.valid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">{{
+                                        m.valid ? 'valid' : 'error' }}</span>
+                                    <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">{{
+                                        m.decisionRef || '—' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- Eerly Copilot Sidebar -->
+                <!-- <aside class="col-span-3 bg-white border rounded-xl overflow-hidden flex flex-col">
+                    <div class="px-4 py-3 border-b font-semibold">Eerly Copilot</div>
+                    <div class="p-3 space-y-2 text-sm overflow-y-auto" style="max-height: calc(100vh - 260px)">
+                        <div class="text-xs text-gray-500">Suggested prompts</div>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="px-2 py-1 border rounded text-xs" (click)="setScreen('MAPPER')">Visual map
+                                IBAN</button>
+                            <button class="px-2 py-1 border rounded text-xs" (click)="setScreen('VALIDATE')">Validate
+                                sample</button>
+                            <button class="px-2 py-1 border rounded text-xs" (click)="setScreen('RUN')">Run
+                                transform</button>
+                        </div>
+
+                        <div class="border rounded-lg p-2 mt-2">
+                            <div class="text-gray-700">User: link mappings to FIN-DEC-042</div>
+                            <div class="text-gray-700 mt-1">Eerly: Added decisionRef to related rows. Drift will update
+                                if decision changes.</div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 border-t flex items-center gap-2">
+                        <input class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="Ask Eerly..." />
+                        <button class="px-3 py-2 rounded-lg text-white" [style.background-color]="BRAND">Send</button>
+                    </div>
+                </aside> -->
+            </div>
+        </section>
+
+        <!-- IMPORT / MAPPER / TABLE / HISTORY / VALIDATE / RUN / EXPORTS -->
+        <!-- Keep all other sections the same as your original code but wrap top-level content in the same "max-w-7xl mx-auto px-4" container for alignment -->
+        <section *ngIf="screen === 'IMPORT'">
+            <div class="max-w-5xl mx-auto mt-6 bg-white border rounded-2xl overflow-hidden">
+                <div class="bg-gray-50 px-6 py-3 text-sm font-medium flex items-center gap-4">
+                    <span [class.text-[#052c65]]="importStep === 1" [class.text-gray-500]="importStep !== 1">1.
+                        Legacy</span>
+                    <span class="text-gray-300">›</span>
+                    <span [class.text-[#052c65]]="importStep === 2" [class.text-gray-500]="importStep !== 2">2.
+                        Target</span>
+                    <span class="text-gray-300">›</span>
+                    <span [class.text-[#052c65]]="importStep === 3" [class.text-gray-500]="importStep !== 3">3.
+                        Mappings</span>
+                </div>
+
+                <div *ngIf="importStep === 1" class="p-6 grid grid-cols-2 gap-6">
+                    <div>
+                        <div class="font-semibold text-gray-800">Upload Legacy Extract</div>
+                        <p class="text-sm text-gray-600">CSV/XLSX with VendorId, Name, Country, IBAN…</p>
+                        <div class="mt-3 flex gap-2">
+                            <button class="px-3 py-1 border rounded" (click)="importStep = 2">Choose File…</button>
+                            <button class="px-3 py-1 border rounded" (click)="showAlert('Sample downloaded')">Download
+                                Sample</button>
+                        </div>
+                    </div>
+                    <div class="rounded-xl p-4 border bg-[#052c65]/5 text-sm">
+                        <div class="font-semibold mb-2" [style.color]="BRAND">Preview (first 3 rows)</div>
+                        <pre class="text-xs">{{ legacyExtract.slice(0,3) | json }}</pre>
+                    </div>
+                </div>
+
+                <div *ngIf="importStep === 2" class="p-6 grid grid-cols-2 gap-6">
+                    <div>
+                        <div class="font-semibold text-gray-800">Upload Target Template</div>
+                        <p class="text-sm text-gray-600">CSV/XLSX with target columns</p>
+                        <div class="mt-3 flex gap-2">
+                            <button class="px-3 py-1 border rounded" (click)="importStep = 3">Choose File…</button>
+                            <button class="px-3 py-1 border rounded" (click)="showAlert('Template exported')">Export
+                                Current
+                                Template</button>
+                        </div>
+                    </div>
+                    <div class="rounded-xl p-4 border bg-[#052c65]/5 text-sm">
+                        <div class="font-semibold mb-2" [style.color]="BRAND">Current Template</div>
+                        <ul class="list-disc pl-6">
+                            <li *ngFor="let c of targetTemplate">{{ c }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div *ngIf="importStep === 3" class="p-6 grid grid-cols-2 gap-6">
+                    <div>
+                        <div class="font-semibold text-gray-800">Upload Mapping Tables</div>
+                        <p class="text-sm text-gray-600">CSV/XLSX with legacy→target & rules</p>
+                        <div class="mt-3 flex gap-2">
+                            <button class="px-3 py-1 border rounded" (click)="setScreen('TABLE')">Choose File…</button>
+                            <button class="px-3 py-1 border rounded" (click)="showAlert('Mappings exported')">Export
+                                Current
+                                Mappings</button>
+                        </div>
+                    </div>
+                    <div class="rounded-xl p-4 border bg-[#052c65]/5 text-sm">
+                        <div class="font-semibold mb-2" [style.color]="BRAND">Example Row</div>
+                        <pre class="text-xs">legacy,target,rule,decisionRef
+    VendorId,SupplierID,copy,FIN-DEC-042</pre>
+                    </div>
+                </div>
+            </div>
+              <div class="mt-4 flex gap-2">
+                <button class="px-3 py-1 border rounded-lg" (click)="setScreen('DASH')">Back</button>
+                <!-- <button class="px-3 py-1 border rounded-lg" (click)="snapshotMappings()">Save Snapshot</button>
+                <button class="px-3 py-1 border rounded-lg" (click)="setScreen('HISTORY')">History</button> -->
+            </div>
+        </section>
+
+        <!-- VISUAL MAPPER -->
+        <section *ngIf="screen === 'MAPPER'">
+            <div class="px-6 pt-4">
+                <div class="text-xs text-gray-500">Tip: drag a legacy field onto a target field to create or update a
+                    mapping. Click a mapping chip to remove.</div>
+            </div>
+
+            <div #boardRef class="relative mx-auto mt-4 max-w-6xl bg-white border rounded-2xl p-4 overflow-hidden">
+                <!-- SVG lines -->
+                <svg class="absolute inset-0 pointer-events-none" width="100%" height="100%">
+                    <line *ngFor="let l of lines" [attr.x1]="l.x1" [attr.y1]="l.y1" [attr.x2]="l.x2" [attr.y2]="l.y2"
+                        [attr.stroke]="BRAND" [attr.stroke-width]="2" [attr.stroke-opacity]="0.5">
+                    </line>
+                </svg>
+
+                <div class="grid grid-cols-3 gap-4 relative">
+                    <!-- Legacy column -->
+                    <div>
+                        <div class="font-semibold text-gray-800 mb-2">Legacy Fields</div>
+                        <div class="space-y-2">
+                            <div *ngFor="let f of legacyExtract[0] | keyvalue"
+                                class="px-3 py-2 border rounded-lg bg-gray-50 hover:bg-gray-100 cursor-grab"
+                                draggable="true" (dragstart)="onDragStartLegacy(f.key)" [attr.data-left]="f.key">
+                                <span class="font-mono text-xs">{{ f.key }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legend / chips -->
+                    <div class="flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-sm text-gray-600">Mappings</div>
+                            <div class="mt-2 flex flex-wrap gap-2 justify-center">
+                                <button *ngFor="let l of links" (click)="removeLink(l.id)"
+                                    class="px-2 py-1 border rounded text-xs">
+                                    {{ l.from }} → {{ l.to }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target column -->
+                    <div>
+                        <div class="font-semibold text-gray-800 mb-2">Target Fields</div>
+                        <div class="space-y-2">
+                            <div *ngFor="let f of targetTemplate"
+                                class="px-3 py-2 border rounded-lg bg-gray-50 hover:border-[#052c65]"
+                                (dragover)="onDragOverTarget($event)" (drop)="onDropTarget(f)" [attr.data-right]="f">
+                                <span class="font-mono text-xs">{{ f }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 flex gap-2">
+                <button class="px-3 py-1 border rounded-lg" (click)="setScreen('DASH')">Back</button>
+                <button class="px-3 py-1 border rounded-lg" (click)="snapshotMappings()">Save Snapshot</button>
+                <button class="px-3 py-1 border rounded-lg" (click)="setScreen('HISTORY')">History</button>
+            </div>
+        </section>
+
+        <!-- TABLE -->
+        <section *ngIf="screen === 'TABLE'">
+            <div class="px-8 py-6">
+                <div class="bg-white border rounded-xl overflow-hidden">
+                    <div class="px-4 py-3 border-b flex items-center justify-between bg-white">
+                        <div class="font-semibold text-gray-800">Mappings</div>
+                        <div class="flex items-center gap-2">
+                            <input [(ngModel)]="filterForTable" class="border rounded px-2 py-1 text-sm"
+                                placeholder="Search…" />
+                            <button class="px-3 py-1 border rounded-lg" (click)="snapshotMappings()">Save
+                                Snapshot</button>
+                            <button class="px-3 py-1 rounded-lg text-white" [ngStyle]="{ 'background-color': BRAND }"
+                                (click)="syncDecisions()">Sync from Config Hub</button>
+                        </div>
+                    </div>
+
+                    <div class="p-3">
+                        <table class="w-full text-sm">
+                            <thead class="text-left text-gray-500">
+                                <tr>
+                                    <th class="py-2">Legacy</th>
+                                    <th>Target</th>
+                                    <th>Rule</th>
+                                    <th>Decision</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let row of filteredMappings; trackBy: trackByMapping" class="border-t">
+                                    <td class="py-2"><input class="border rounded px-2 py-1 w-full"
+                                            [(ngModel)]="row.legacy"
+                                            (ngModelChange)="updateRow(row.id,'legacy',$event)" /></td>
+                                    <td><input class="border rounded px-2 py-1 w-full" [(ngModel)]="row.target"
+                                            (ngModelChange)="updateRow(row.id,'target',$event)" /></td>
+                                    <td>
+                                        <select class="border rounded px-2 py-1 w-full" [(ngModel)]="row.rule"
+                                            (ngModelChange)="updateRow(row.id,'rule',$event)">
+                                            <option value="copy">copy</option>
+                                            <option value="uppercase">uppercase</option>
+                                            <option value="normalize_iban">normalize_iban</option>
+                                            <option value="map_country">map_country</option>
+                                            <option value="concat">concat</option>
+                                        </select>
+                                    </td>
+                                    <td><input class="border rounded px-2 py-1 w-full" [(ngModel)]="row.decisionRef"
+                                            (ngModelChange)="updateRow(row.id,'decisionRef',$event)"
+                                            placeholder="e.g., FIN-DEC-042" /></td>
+                                    <td>
+                                        <span class="text-xs px-2 py-0.5 rounded-full"
+                                            [ngClass]="row.valid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                                            {{ row.valid ? 'valid' : 'incomplete' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-right"><button class="px-2 py-1 border rounded text-xs"
+                                            (click)="showHistory(row.id)">History</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button class="px-3 py-1 border rounded-lg" (click)="setScreen('DASH')">Back</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- HISTORY -->
+        <section *ngIf="screen === 'HISTORY'">
+            <div class="grid grid-cols-12 gap-6 px-8 py-6">
+                <main class="col-span-8 bg-white border rounded-xl p-4">
+                    <div class="font-semibold text-gray-800 mb-2">Change Log</div>
+                    <div class="space-y-2 text-sm">
+                        <div *ngIf="noHistory" class="text-gray-500">No changes yet.</div>
+                        <div *ngFor="let m of mappings">
+                            <div *ngFor="let h of (m.history || [])">
+                                <div class="border rounded p-2">
+                                    <div class="text-xs text-gray-500">{{ h.ts ? (h.ts | date:'medium') : '' }}</div>
+                                    <div><span class="font-mono text-xs">{{ m.legacy }}</span> → <span
+                                            class="font-mono text-xs">{{ m.target }}</span></div>
+                                    <div class="text-gray-700">{{ h.field }}: {{ h.from || '—' }} → {{ h.to || '—' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                <aside class="col-span-4 bg-white border rounded-xl p-4">
+                    <div class="font-semibold text-gray-800">Snapshots</div>
+                    <div class="space-y-2 mt-2 text-sm">
+                        <button class="px-3 py-1 rounded text-white" [ngStyle]="{ 'background-color': BRAND }"
+                            (click)="snapshotMappings()">Save Snapshot</button>
+                        <div *ngIf="snapshots.length === 0" class="text-gray-500 text-sm mt-2">No snapshots yet.</div>
+                        <div *ngFor="let s of snapshots.slice().reverse()"
+                            class="border rounded p-2 flex items-center justify-between">
+                            <div>
+                                <div class="font-medium">{{ s.label }}</div>
+                                <div class="text-xs text-gray-500">{{ s.ts | date:'medium' }}</div>
+                            </div>
+                            <div>
+                                <button class="px-2 py-1 border rounded text-xs"
+                                    (click)="restoreSnapshot(s.id)">Restore</button>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+            <div class="px-8 pb-8"><button class="px-3 py-1 border rounded-lg" (click)="setScreen('DASH')">Back</button>
+            </div>
+        </section>
+
+        <!-- VALIDATE -->
+        <section *ngIf="screen === 'VALIDATE'">
+            <div class="grid grid-cols-12 gap-6 px-8 py-6">
+                <aside class="col-span-4 bg-white border rounded-xl p-4 text-sm">
+                    <div class="font-semibold text-gray-800 mb-2">Rules in Effect</div>
+                    <ul class="list-disc pl-6">
+                        <li *ngFor="let m of mappings">{{ m.legacy }} → {{ m.target }} ({{ m.rule }})</li>
+                    </ul>
+                </aside>
+
+                <main class="col-span-8 bg-white border rounded-xl p-4">
+                    <div class="font-semibold text-gray-800">Sample Preview</div>
+                    <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
+                        <div>
+                            <div class="text-xs text-gray-500 mb-1">Legacy</div>
+                            <table class="w-full text-xs">
+                                <thead class="text-left text-gray-500">
+                                    <tr>
+                                        <th *ngFor="let h of legacyExtract[0] | keyvalue" class="pr-2">{{ h.key }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let r of legacyExtract.slice(0,3)" class="border-t">
+                                        <td *ngFor="let v of r | keyvalue" class="pr-2 py-1">{{ v.value }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            <div class="text-xs text-gray-500 mb-1">Transformed</div>
+                            <div class="text-gray-500">Run validation to preview transformed rows.</div>
+                            <div class="mt-3">
+                                <button class="px-3 py-1 rounded-lg text-white"
+                                    [ngStyle]="{ 'background-color': BRAND }" (click)="runValidate()">Validate
+                                    Sample</button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div class="px-8 pb-8"><button class="px-3 py-1 border rounded-lg" (click)="setScreen('DASH')">Back</button>
+            </div>
+        </section>
+
+        <!-- RUN -->
+        <section *ngIf="screen === 'RUN'">
+            <div class="grid grid-cols-12 gap-6 px-8 py-6">
+                <main class="col-span-8 space-y-4">
+                    <div class="bg-white border rounded-xl p-4">
+                        <div class="font-semibold text-gray-800">Latest Job</div>
+                        <div class="mt-2">{{ runs.length ? (runs[runs.length-1].id + ' • ' + runs[runs.length-1].type) :
+                            'No
+                            jobs yet' }}</div>
+                        <div class="mt-2">
+                            <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                                <div class="h-3" [style.background]="BRAND"
+                                    [style.width.%]="runs.length ? runs[runs.length-1].progress : 0"></div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">{{ runs.length ? runs[runs.length-1].status : '—' }}
+                        </div>
+                    </div>
+
+                    <div class="bg-white border rounded-xl p-4">
+                        <div class="font-semibold text-gray-800">Output</div>
+                        <div class="text-sm text-gray-600">Rows: {{ runs.length ? runs[runs.length-1].rowsOut : 0 }}
+                        </div>
+                        <div class="text-sm text-gray-600">Errors: {{ runs.length ? (runs[runs.length-1].errors ||
+                            []).length : 0 }}</div>
+                        <div class="mt-2 flex gap-2">
+                            <button class="px-2 py-1 border rounded text-xs" (click)="enqueueRun('transform')">Run
+                                Transform</button>
+                            <button class="px-2 py-1 border rounded text-xs" (click)="setScreen('EXPORTS')">Open
+                                Exports</button>
+                        </div>
+                    </div>
+                </main>
+
+                <aside class="col-span-4 bg-white border rounded-xl p-4 text-sm">
+                    <div class="font-semibold text-gray-800">Validation Findings</div>
+                    <div class="mt-2 text-gray-500" *ngIf="!(runs.length && runs[runs.length-1].errors?.length)">No
+                        errors
+                        detected.</div>
+                    <div *ngIf="runs.length && runs[runs.length-1].errors?.length">
+                        <ul class="list-disc pl-6">
+                            <li *ngFor="let e of runs[runs.length-1].errors">Row {{ e.row }}: {{ e.field }} — {{ e.msg
+                                }}
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+
+            <div class="px-8 pb-8">
+                <button class="px-3 py-1 border rounded-lg" (click)="setScreen('DASH')">Back</button>
+            </div>
+        </section>
+
+        <!-- EXPORTS -->
+        <section *ngIf="screen === 'EXPORTS'">
+            <div class="max-w-5xl mx-auto mt-6 bg-white border rounded-xl overflow-hidden">
+                <div class="px-4 py-3 border-b">
+                    <div class="font-semibold text-gray-800">Completed Outputs</div>
+                </div>
+                <div class="p-4">
+                    <table class="w-full text-sm">
+                        <thead class="text-left text-gray-500">
+                            <tr>
+                                <th class="py-2">Run</th>
+                                <th>Type</th>
+                                <th>Rows</th>
+                                <th>Finished</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngIf="completedExports.length === 0">
+                                <td class="py-3 text-gray-500" colspan="5">No exports yet.</td>
+                            </tr>
+                            <tr *ngFor="let it of completedExports">
+                                <td class="py-2 font-mono text-xs">{{ it.id }}</td>
+                                <td>{{ it.type }}</td>
+                                <td>{{ it.rows }}</td>
+                                <td class="font-mono text-xs">{{ it.when }}</td>
+                                <td class="text-right"><button class="px-2 py-1 border rounded text-xs"
+                                        (click)="showAlert('Downloading…')">Download</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="px-8 pb-8"><button class="px-3 py-1 border rounded-lg" (click)="setScreen('DASH')">Back</button>
+            </div>
+        </section>
+    </div>
+</main>

@@ -1,0 +1,421 @@
+<!-- Wrapper -->
+<div class="min-h-screen bg-gray-50 text-gray-900">
+
+    <!-- Top Bar -->
+    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b shadow-sm">
+        <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- <div class="h-8 w-8 rounded-xl bg-[#052c65]" aria-hidden="true"></div> -->
+                <span class="text-sm font-semibold tracking-wide">
+                    Eerly AI ·
+                    <span>{{ view === 'build' ? 'Eerly Build Orchestrator' : 'Version Sign-Off Center' }}</span>
+                </span>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                <span class="text-gray-600">{{ ctx.projectName }} ({{ ctx.projectId }})</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-600">{{ ctx.specDocTitle }} ({{ ctx.specDocId }})</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-600">
+                    {{ ctx.versionId }}
+                    <span class="ml-1 text-xs px-2 py-0.5 rounded-full"
+                        [ngClass]="ctx.signed ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                        {{ ctx.signed ? 'Signed' : 'Unsigned' }}
+                    </span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="mx-auto max-w-7xl px-4 py-6 space-y-8">
+
+        <!-- SIGN-OFF VIEW -->
+        <section *ngIf="view === 'signoff'">
+            <div class="grid grid-cols-12 gap-4">
+
+                <!-- Version list -->
+                <aside class="col-span-12 md:col-span-4 bg-white border rounded-xl p-4">
+                    <div class="font-semibold text-gray-800 mb-2">Version History</div>
+                    <div class="space-y-3">
+                        <div *ngFor="let v of versions" class="border rounded-lg p-3 bg-white">
+                            <div class="flex items-center justify-between">
+                                <div class="font-semibold text-gray-800">{{ v.label }}</div>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                                    {{ v.ts | date:'short' }}
+                                </span>
+                            </div>
+                            <div class="text-xs text-gray-500">by {{ v.author }}</div>
+                            <div class="text-sm text-gray-700 mt-1">{{ v.content.execObjective }}</div>
+                            <div class="mt-2 flex items-center gap-2 text-xs">
+                                <button class="px-2 py-1 rounded border" (click)="selectedLeft = v.id">Compare
+                                    (Left)</button>
+                                <button class="px-2 py-1 rounded border" (click)="selectedRight = v.id">Compare
+                                    (Right)</button>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Diff viewer -->
+                <main class="col-span-12 md:col-span-5 bg-white border rounded-xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="font-semibold text-gray-800">
+                            Diff: Executive Summary → Objective
+                        </div>
+                        <div class="text-xs text-gray-500">{{ leftVersion.label }} vs {{ rightVersion.label }}</div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-2 gap-4 text-sm">
+                        <div class="border rounded-lg p-3">
+                            <div class="text-xs text-gray-500 mb-1">{{ leftVersion.label }}</div>
+                            <div class="text-gray-800 whitespace-pre-wrap">{{ leftVersion.content.execObjective }}</div>
+                        </div>
+                        <div class="border rounded-lg p-3">
+                            <div class="text-xs text-gray-500 mb-1">{{ rightVersion.label }}</div>
+                            <div class="text-gray-800 whitespace-pre-wrap">{{ rightVersion.content.execObjective }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                        <span *ngFor="let w of diffRemoved" class="px-2 py-1 rounded bg-red-100 text-red-700">- {{ w
+                            }}</span>
+                        <span *ngFor="let w of diffAdded" class="px-2 py-1 rounded bg-green-100 text-green-700">+ {{ w
+                            }}</span>
+                    </div>
+
+                    <div class="mt-4 border-t pt-3">
+                        <div class="font-semibold text-gray-800 mb-1">Linked Evidence</div>
+                        <ul class="list-disc pl-5 text-sm text-[#052c65]">
+                            <li><button class="underline">Workshop 03 summary</button></li>
+                            <li><button class="underline">Tax codes harmonization spreadsheet</button></li>
+                            <li><button class="underline">SAC nightly feed configuration</button></li>
+                        </ul>
+                    </div>
+                </main>
+
+                <!-- Approvals -->
+                <aside class="col-span-12 md:col-span-3 bg-white border rounded-xl p-4 flex flex-col">
+                    <!-- Header with Add button -->
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="font-semibold text-gray-800">Review & Sign-Off</div>
+                        <button class="p-1.5 rounded-full border hover:bg-gray-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-700" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Reviewer list -->
+                    <div class="space-y-3 text-sm">
+                        <div *ngFor="let r of reviewers; let i = index"
+                            class="border rounded-lg p-3 flex items-center justify-between">
+                            <div>
+                                <div class="font-medium text-gray-800">{{ r.name }}</div>
+                                <div class="text-xs text-gray-500">{{ r.role }}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs px-2 py-0.5 rounded-full" [ngClass]="{
+            'bg-green-100 text-green-700': r.status==='approved',
+            'bg-red-100 text-red-700': r.status==='rejected',
+            'bg-amber-100 text-amber-700': r.status==='pending'
+          }">{{ r.status }}</span>
+                                <div class="flex gap-1">
+                                    <!-- Approve -->
+                                    <button class="p-1.5 rounded border hover:bg-green-50"
+                                        (click)="approveReviewer(i,'approved')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-600"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </button>
+                                    <!-- Reject -->
+                                    <button class="p-1.5 rounded border hover:bg-red-50"
+                                        (click)="approveReviewer(i,'rejected')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-600" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-auto pt-3 border-t">
+                        <div class="text-xs text-gray-500 mb-2">
+                            Approvals required: {{ approverStats.need }} • Completed: {{ approverStats.done }}
+                        </div>
+                        <button class="w-full px-4 py-2 rounded-lg text-white"
+                            [ngClass]="approverStats.ready ? 'bg-[#052c65] hover:bg-[#041f47]' : 'bg-gray-300 cursor-not-allowed'"
+                            [disabled]="!approverStats.ready" (click)="finalSignOff()">
+                            Final Sign-Off
+                        </button>
+                        <button class="w-full mt-2 px-4 py-2 rounded-lg"
+                            [ngClass]="approverStats.ready ? 'border border-[#052c65] text-[#052c65] hover:bg-[#052c65]/5' : 'text-gray-400 border-gray-200 cursor-not-allowed'"
+                            [disabled]="!approverStats.ready" (click)="setView('build')">
+                            Continue to Build
+                        </button>
+                    </div>
+                </aside>
+
+
+            </div>
+        </section>
+
+        <!-- BUILD VIEW -->
+        <section *ngIf="view === 'build'">
+            <div class="grid grid-cols-12 gap-4">
+
+                <!-- Controls/Queues -->
+                <aside class="col-span-12 md:col-span-3 bg-white border rounded-xl flex flex-col">
+                    <!-- Header -->
+                    <div class="px-4 py-3 border-b flex items-center justify-between">
+                        <div class="font-semibold text-gray-800">Run Controls</div>
+                        <div class="flex gap-2">
+                            <!-- Start -->
+                            <button class="p-2 border rounded-lg hover:bg-gray-50 text-[#052c65]" (click)="startRun()"
+                                title="Start Run">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3" />
+                                </svg>
+                            </button>
+                            <!-- Pause -->
+                            <button class="p-2 border rounded-lg hover:bg-gray-50 text-amber-600" (click)="pauseRun()"
+                                title="Pause Run">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <rect x="6" y="4" width="4" height="16" />
+                                    <rect x="14" y="4" width="4" height="16" />
+                                </svg>
+                            </button>
+                            <!-- Resume -->
+                            <button class="p-2 border rounded-lg hover:bg-gray-50 text-green-600" (click)="resumeRun()"
+                                title="Resume Run">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polygon points="10 8 16 12 10 16 10 8" />
+                                </svg>
+                            </button>
+                            <!-- Stop -->
+                            <button class="p-2 border rounded-lg hover:bg-gray-50 text-red-600" (click)="stopRun()"
+                                title="Stop Run">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <rect x="6" y="6" width="12" height="12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Progress -->
+                    <div class="p-4">
+                        <div class="text-xs text-gray-500 mb-1">Overall Progress</div>
+                        <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                            <div class="h-3" style="background:#052c65" [style.width.%]="progress"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            {{ progress }}% • {{ doneCount }}/{{ tasks.length }} completed •
+                            {{ runningCount }} running •
+                            {{ blockedCount }} blocked
+                        </div>
+                    </div>
+
+                    <!-- Status Counts -->
+                    <div class="px-4 pb-4 space-y-2 text-sm">
+                        <div class="flex items-center justify-between border rounded-lg p-2">
+                            <div>Pending</div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                                {{ pendingCount }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between border rounded-lg p-2">
+                            <div>Running</div>
+                            <span class="text-xs px-2 py-0.5 rounded-full"
+                                style="background:rgba(5,44,101,.1);color:#052c65">
+                                {{ runningCount }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between border rounded-lg p-2">
+                            <div>Done</div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                                {{ doneCount }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between border rounded-lg p-2">
+                            <div>Blocked</div>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                                {{ blockedCount }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-auto p-4 border-t">
+                        <div class="flex flex-col sm:flex-row items-center sm:justify-between gap-3">
+                            <!-- Back button (secondary) -->
+                            <button (click)="setView('signoff')"
+                                class="w-full sm:w-auto px-4 py-2 border rounded-md hover:bg-gray-50 flex items-center justify-center gap-2 text-sm text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                Back to Sign-Off
+                            </button>
+
+                            <!-- Primary button - Go to Post-Build -->
+                            <button
+                                class="w-full sm:w-auto px-4 py-2 rounded-md bg-[#052c65] hover:bg-[#031d46] text-white flex items-center justify-center gap-2 text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                Go to Post-Build
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+
+
+                <!-- Timeline -->
+                <main class="col-span-12 md:col-span-6 bg-white border rounded-xl p-6">
+                    <div class="font-semibold text-gray-800 mb-4">Task Timeline</div>
+
+                    <div class="space-y-6 relative">
+                        <!-- vertical line for timeline -->
+                        <div class="absolute left-3 top-0 bottom-0 w-px bg-gray-200"></div>
+
+                        <!-- task item -->
+                        <div *ngFor="let t of tasks; let i = index" class="relative flex items-start gap-4">
+                            <!-- circle -->
+                            <div class="relative z-10 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-1"
+                                [ngClass]="{
+          'border-green-600': t.status==='done',
+          'border-red-600': t.status==='blocked',
+          'border-[#052c65]': t.status==='running',
+          'border-gray-400': t.status==='pending'
+        }">
+                                <div class="w-2 h-2 rounded-full" [ngClass]="{
+            'bg-green-600': t.status==='done',
+            'bg-red-600': t.status==='blocked',
+            'bg-[#052c65]': t.status==='running',
+            'bg-gray-400': t.status==='pending'
+          }">
+                                </div>
+                            </div>
+
+                            <!-- card -->
+                            <div class="flex-1 bg-white border rounded-xl shadow-sm p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-xs text-gray-500">{{ t.area }}</div>
+                                        <div class="font-medium text-gray-800">{{ t.name }}</div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs px-2 py-0.5 rounded-full" [ngClass]="{
+                'bg-green-100 text-green-700': t.status==='done',
+                'bg-red-100 text-red-700': t.status==='blocked',
+                'bg-blue-100 text-blue-700': t.status==='running',
+                'bg-gray-100 text-gray-700': t.status==='pending'
+              }">
+                                            {{ t.status }}
+                                        </span>
+                                        <button class="text-sm px-3 py-1 rounded-lg border hover:bg-gray-50"
+                                            (click)="t.expanded = !t.expanded">
+                                            {{ t.expanded ? 'Hide' : 'View' }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- expanded details -->
+                                <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm" *ngIf="t.expanded">
+                                    <!-- Screenshots -->
+                                    <div>
+                                        <div class="font-semibold text-gray-700 mb-1">Screenshots</div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <button *ngFor="let s of t.screenshots"
+                                                class="relative group border rounded-lg overflow-hidden">
+                                                <img [src]="s.src" [alt]="s.caption" class="w-full h-24 object-cover" />
+                                                <div
+                                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition">
+                                                </div>
+                                            </button>
+                                        </div>
+                                        <div class="text-xs text-gray-500" *ngIf="!t.screenshots.length">No screenshots
+                                        </div>
+                                    </div>
+
+                                    <!-- Evidence -->
+                                    <div>
+                                        <div class="font-semibold text-gray-700 mb-1">Evidence</div>
+                                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                            <li *ngFor="let e of t.evidence">{{ e }}</li>
+                                        </ul>
+                                        <div class="text-xs text-gray-500" *ngIf="!t.evidence.length">No evidence</div>
+                                    </div>
+
+                                    <!-- Live Log -->
+                                    <div>
+                                        <div class="font-semibold text-gray-700 mb-1">Live Log</div>
+                                        <div
+                                            class="bg-gray-50 border rounded-lg p-2 h-28 overflow-y-auto text-xs text-gray-700 whitespace-pre-wrap">
+                                            {{ t.logs.length ? (t.logs.join('\n')) : 'Awaiting log entries...' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- footer -->
+                    <div
+                        class="bg-gray-50 border rounded-xl shadow-sm p-4 mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div class="text-sm text-gray-700">
+                            Waiting for all tasks to complete and exceptions to resolve.
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-2 rounded-lg border hover:bg-gray-50">Export Report (ZIP)</button>
+                            <button class="px-3 py-2 rounded-lg text-white bg-[#052c65]" disabled>Archive
+                                Evidence</button>
+                            <button class="px-3 py-2 rounded-lg border" disabled>Draft v1.0 with Optimizations</button>
+                        </div>
+                    </div>
+                </main>
+
+
+                <!-- Right rail -->
+                <aside class="col-span-12 md:col-span-3">
+                    <div class="bg-white border rounded-xl p-4 mb-4">
+                        <div class="font-semibold text-gray-800">Exceptions</div>
+                        <div class="mt-2 space-y-2 text-sm">
+                            <div *ngFor="let ex of exceptions" class="border rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="font-medium text-gray-800">{{ ex.title }}</div>
+                                    <span
+                                        class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">open</span>
+                                </div>
+                                <div class="text-gray-700 mt-1">{{ ex.detail }}</div>
+                                <div class="text-xs text-gray-500">Suggested action: {{ ex.action }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white border rounded-xl p-4">
+                        <div class="font-semibold text-gray-800">Optimizations & Considerations</div>
+                        <div class="mt-2 space-y-2 text-sm">
+                            <div *ngFor="let ins of insights" class="border rounded-lg p-3">
+                                <div class="font-medium text-gray-800">{{ ins.title }}</div>
+                                <div class="text-xs text-gray-500 mb-1">optimization</div>
+                                <div class="text-gray-700">{{ ins.detail }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+    </div>
+</div>

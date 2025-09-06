@@ -1,0 +1,210 @@
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b">
+  <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <!-- <div aria-hidden="true" class="h-8 w-8 rounded-xl bg-[#052c65]"></div> -->
+      <span class="text-sm font-semibold tracking-wide">Eerly AI · Project Workspace</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <select class="rounded-lg border px-3 py-1.5 text-sm">
+        <option>ACME S/4 Finance Rollout</option>
+        <option>Payroll Integration</option>
+      </select>
+      <button class="px-3 py-1.5 rounded-lg border text-sm" (click)="showAssistant = !showAssistant">
+        {{ showAssistant ? 'Hide Assistant' : 'Show Assistant' }}
+      </button>
+      <!-- <div aria-label="User menu" class="w-9 h-9 rounded-full bg-gray-300"></div> -->
+    </div>
+  </div>
+</header>
+
+<!-- Body Grid -->
+<div class="mx-auto max-w-7xl grid grid-cols-12 gap-6 mt-6">
+  <!-- Left nav -->
+  <aside class="col-span-2 space-y-2">
+    <button *ngFor="let t of tabs"
+      (click)="setTab(t)"
+      class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50"
+      [ngClass]="{'bg-[#052c65]/5 text-[#052c65] border border-[#052c65]/30': activeTab===t}">
+      {{ t | titlecase }}
+    </button>
+  </aside>
+
+  <!-- Main content -->
+  <section class="col-span-{{ showAssistant ? 7 : 10 }} space-y-6 transition-all">
+    <!-- OVERVIEW -->
+    <ng-container *ngIf="activeTab==='overview'">
+      <div class="grid grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl shadow p-6 text-center" *ngFor="let k of overviewKPIs">
+          <div class="text-2xl font-bold text-[#052c65]">{{ k.value }}</div>
+          <div class="text-gray-500 text-sm mt-1">{{ k.label }}</div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <h2 class="font-semibold mb-2">Checklist</h2>
+        <ul class="space-y-2">
+          <li class="flex items-center justify-between border rounded-lg p-3" *ngFor="let item of checklist; let i = index">
+            <div>
+              <div class="font-medium">{{ item.title }}</div>
+              <div class="text-gray-500">{{ item.sub }}</div>
+            </div>
+            <button (click)="toggleChecklist(i)"
+              class="px-3 py-1 rounded-lg border"
+              [ngClass]="{'bg-[#052c65] text-white': item.done}">
+              {{ item.done ? 'Done' : 'Mark Done' }}
+            </button>
+          </li>
+        </ul>
+        <div class="text-sm text-gray-500 mt-2">{{ checklistProgress }}</div>
+      </div>
+    </ng-container>
+
+    <!-- WORKSPACE -->
+    <ng-container *ngIf="activeTab==='workspace'">
+      <div class="flex gap-4">
+        <div class="bg-white rounded-xl shadow p-4 min-w-[140px] text-center">
+          <div class="text-xs text-gray-500">Workshops</div>
+          <div class="text-lg font-semibold">{{ wsHeld }}/{{ wsTotal }}</div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4 min-w-[140px] text-center">
+          <div class="text-xs text-gray-500">Progress</div>
+          <div class="text-lg font-semibold">{{ progress }}%</div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4 min-w-[140px] text-center">
+          <div class="text-xs text-gray-500">Pending Decisions</div>
+          <div class="text-lg font-semibold">{{ decTotal - decRes }}</div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex gap-2 flex-wrap">
+        <button (click)="adjust('ws', -1)" class="px-2 border rounded">-WS</button>
+        <button (click)="adjust('ws', +1)" class="px-2 border rounded">+WS</button>
+        <button (click)="adjust('dec', -1)" class="px-2 border rounded">-Decision</button>
+        <button (click)="adjust('dec', +1)" class="px-2 border rounded">+Decision</button>
+        <button (click)="adjust('cov', -5)" class="px-2 border rounded">-Cov</button>
+        <button (click)="adjust('cov', +5)" class="px-2 border rounded">+Cov</button>
+      </div>
+    </ng-container>
+
+    <!-- SPEC -->
+    <ng-container *ngIf="activeTab==='spec'">
+      <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-7">
+          <h3 class="font-semibold mb-2">Feed</h3>
+          <div class="space-y-2">
+            <div *ngFor="let f of feed" class="border rounded-lg p-3 bg-white">
+              <div class="text-xs text-gray-500">{{ f.ts }} · {{ f.type | uppercase }}</div>
+              <div>{{ f.text }}</div>
+            </div>
+          </div>
+          <div class="mt-3 flex gap-2">
+            <input class="border rounded px-3 py-2 flex-1" [(ngModel)]="newFeedText" placeholder="Add feed note..." />
+            <button (click)="addFeedItem()" class="px-3 py-2 rounded-lg border">Add</button>
+          </div>
+        </div>
+
+        <div class="col-span-5">
+          <h3 class="font-semibold mb-2">Comments</h3>
+          <div class="space-y-2">
+            <div *ngFor="let c of comments" class="border rounded-lg p-3 bg-white">
+              <div class="text-xs text-gray-500">{{ c.ts }} · {{ c.author }} · #{{ c.anchor }}</div>
+              <div class="mb-2" [ngClass]="{'line-through text-gray-400': c.status==='resolved'}">{{ c.text }}</div>
+              <div class="flex gap-2">
+                <button (click)="toggleComment(c.id)" class="px-2 py-1 rounded border">
+                  {{ c.status==='open' ? 'Resolve' : 'Reopen' }}
+                </button>
+                <button (click)="removeComment(c.id)" class="px-2 py-1 rounded border">Delete</button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 flex gap-2">
+            <input class="border rounded px-3 py-2 flex-1" [(ngModel)]="newComment" placeholder="Add a comment..." />
+            <button (click)="addComment()" class="px-3 py-2 rounded-lg border">Comment</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- EDITOR -->
+    <ng-container *ngIf="activeTab==='editor'">
+      <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-8">
+          <h3 class="font-semibold mb-2">Spec Fields</h3>
+          <table class="min-w-full bg-white rounded-xl shadow overflow-hidden">
+            <thead class="bg-gray-50 text-left text-sm">
+              <tr>
+                <th class="px-4 py-2">Field</th>
+                <th class="px-4 py-2">Value</th>
+                <th class="px-4 py-2">Note</th>
+                <th class="px-4 py-2 w-20"></th>
+              </tr>
+            </thead>
+            <tbody class="text-sm">
+              <tr *ngFor="let r of rows; let i = index" class="border-t">
+                <td class="px-4 py-2">{{ r.field }}</td>
+                <td class="px-4 py-2">{{ r.value }}</td>
+                <td class="px-4 py-2">{{ r.note }}</td>
+                <td class="px-4 py-2 text-right">
+                  <button (click)="removeRow(i)" class="px-2 py-1 rounded border">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="mt-3 grid grid-cols-3 gap-2">
+            <input class="border rounded px-3 py-2" placeholder="Field" [(ngModel)]="draftField.field" />
+            <input class="border rounded px-3 py-2" placeholder="Value" [(ngModel)]="draftField.value" />
+            <input class="border rounded px-3 py-2" placeholder="Note" [(ngModel)]="draftField.note" />
+          </div>
+          <div class="mt-2 flex gap-2">
+            <button (click)="addRow()" class="px-3 py-2 rounded-lg border">Add Field</button>
+            <button (click)="saveVersion()" class="px-3 py-2 rounded-lg border">Save Version</button>
+          </div>
+        </div>
+
+        <div class="col-span-4 space-y-4">
+          <div class="bg-white rounded-xl shadow p-3">
+            <div class="font-semibold mb-2">Versions ({{ versions.length }})</div>
+            <div class="space-y-2">
+              <button *ngFor="let v of versions"
+                class="w-full text-left px-3 py-2 rounded border hover:bg-gray-50"
+                (click)="loadVersion(v.id)">
+                {{ v.label }} · {{ v.ts }}
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow p-3">
+            <div class="font-semibold mb-2">Audit</div>
+            <div class="space-y-2 max-h-64 overflow-auto">
+              <div *ngFor="let a of audit" class="text-sm border rounded p-2">
+                <div class="text-xs text-gray-500">{{ a.ts }}</div>
+                <div>{{ a.text }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+
+  <!-- Right Assistant Panel -->
+  <aside *ngIf="showAssistant" class="col-span-3 space-y-4">
+    <div class="bg-white rounded-xl shadow p-4">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-[#052c65]"></div>
+        <div class="font-semibold">Assistant</div>
+      </div>
+      <div class="mt-3 text-sm text-gray-600">
+        Ask me to generate workshops, summarize decisions, or draft test cases.
+      </div>
+      <div class="mt-3">
+        <textarea class="w-full border rounded p-2" rows="3" placeholder="Type a prompt..."></textarea>
+      </div>
+      <div class="mt-2 flex justify-end">
+        <button class="px-3 py-1.5 rounded-lg border">Send</button>
+      </div>
+    </div>
+  </aside>
+</div>

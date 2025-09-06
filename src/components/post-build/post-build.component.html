@@ -1,0 +1,639 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :host,
+  :host * {
+    box-sizing: border-box;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  :host {
+    display: block;
+    width: 100%;
+  }
+</style>
+
+<div class="min-h-screen bg-gray-50 text-gray-900">
+  <header class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b">
+    <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-semibold tracking-wide">Eerly AI · Integrated Workspace</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <select [(ngModel)]="selectedProject" class="rounded-lg border px-3 py-1.5 text-sm">
+          <option *ngFor="let p of projects">{{ p }}</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <div class="mx-auto max-w-7xl px-4 py-6 grid grid-cols-12 gap-6">
+    <aside class="col-span-12 md:col-span-2 lg:col-span-2">
+      <div class="bg-white shadow-sm rounded-2xl p-4">
+        <div class="text-xs text-gray-500 mb-2">Workspace</div>
+        <div id="navButtons" class="space-y-2">
+          <button (click)="setTab('overview')" class="w-full text-left px-3 py-2 rounded-lg"
+            [ngClass]="isTab('overview') ? 'bg-[#052c65]/5 text-[#052c65] border border-[#052c65]/30' : 'hover:bg-gray-50'">Overview</button>
+          <button (click)="setTab('workspace')" class="w-full text-left px-3 py-2 rounded-lg"
+            [ngClass]="isTab('workspace') ? 'bg-[#052c65]/5 text-[#052c65] border border-[#052c65]/30' : 'hover:bg-gray-50'">Workspace</button>
+          <button (click)="setTab('spec')" class="w-full text-left px-3 py-2 rounded-lg"
+            [ngClass]="isTab('spec') ? 'bg-[#052c65]/5 text-[#052c65] border border-[#052c65]/30' : 'hover:bg-gray-50'">Spec
+            (Interactive)</button>
+          <!-- <button (click)="setTab('editor')" class="w-full text-left px-3 py-2 rounded-lg"
+            [ngClass]="isTab('editor') ? 'bg-[#052c65]/5 text-[#052c65] border border-[#052c65]/30' : 'hover:bg-gray-50'">Editor
+            (Collaborative)</button> -->
+          <button (click)="setTab('postbuild')" class="w-full text-left px-3 py-2 rounded-lg"
+            [ngClass]="isTab('postbuild') ? 'bg-[#052c65]/5 text-[#052c65] border border-[#052c65]/30' : 'hover:bg-gray-50'">Post-Build</button>
+        </div>
+        <div class="mt-6 text-xs text-gray-400">Project ID: PRJ-2043</div>
+      </div>
+    </aside>
+
+    <main class="col-span-12 md:col-span-10 lg:col-span-10" id="mainArea">
+      <section *ngIf="isTab('overview')" class="space-y-8">
+        <!-- Project Created Card -->
+        <div class="bg-white border border-green-200 rounded-2xl p-6 shadow-sm">
+          <div class="flex flex-col lg:flex-row items-start justify-between gap-4">
+            <div class="flex-1">
+              <div class="text-green-700 font-semibold text-lg">Project created successfully</div>
+              <p class="text-gray-600 text-sm mt-1">
+                Eerly generated your spec skeleton and a 3-week workshop plan based on your documents and conversation.
+              </p>
+              <div class="flex flex-wrap gap-3 mt-4">
+                <button class="px-4 py-2 rounded-lg border hover:border-[#052c65]">Open Spec Skeleton</button>
+                <button class="px-4 py-2 rounded-lg border hover:border-[#052c65]">View Workshop Plan</button>
+              </div>
+            </div>
+            <div class="text-sm text-gray-500 whitespace-nowrap">Created: Today • Owner: Jane Smith</div>
+          </div>
+        </div>
+
+        <!-- KPIs Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="overviewKPIs">
+          <div *ngFor="let k of overviewKPIs"
+            class="bg-white rounded-xl shadow p-6 text-center flex flex-col justify-center">
+            <div class="text-2xl font-bold text-[#052c65]">{{ k.value }}</div>
+            <div class="text-gray-500 text-sm mt-1">{{ k.label }}</div>
+          </div>
+        </div>
+
+        <!-- Kickoff Checklist + Quick Actions -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          <!-- Checklist -->
+          <section class="lg:col-span-2 bg-white rounded-2xl shadow p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold text-gray-800">Kickoff Checklist</h2>
+              <span class="text-sm text-gray-500">{{ checklistProgress }}</span>
+            </div>
+            <ul class="space-y-3 text-sm flex-1" id="checklist">
+              <li *ngFor="let it of checklist; let i = index"
+                class="flex items-center justify-between border rounded-lg p-3">
+                <div>
+                  <div class="font-medium">{{ it.t }}</div>
+                  <div class="text-gray-500">{{ it.s }}</div>
+                </div>
+                <button (click)="toggleChecklist(i)" class="px-3 py-1 rounded-lg border"
+                  [ngClass]="it.done ? 'bg-[#052c65] text-white' : ''">
+                  {{ it.done ? 'Done' : 'Mark Done' }}
+                </button>
+              </li>
+            </ul>
+          </section>
+
+          <!-- Quick Actions -->
+          <aside class="bg-white rounded-2xl shadow p-6 flex flex-col h-full">
+            <div class="font-semibold text-gray-800 mb-3">Quick Actions</div>
+            <div class="flex flex-col gap-3 flex-1 justify-start">
+              <button class="w-full px-4 py-2 rounded-lg border text-left hover:border-[#052c65]">Start
+                Workshops</button>
+              <button class="w-full px-4 py-2 rounded-lg border text-left hover:border-[#052c65]">Open Spec</button>
+              <button class="w-full px-4 py-2 rounded-lg border text-left hover:border-[#052c65]">Connect
+                Testing</button>
+              <button class="w-full px-4 py-2 rounded-lg border text-left hover:border-[#052c65]">Prepare Data
+                Template</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+
+
+      <!-- Workspace -->
+      <section *ngIf="isTab('workspace')" class="space-y-6">
+        <!-- KPI + Actions -->
+        <div class="bg-white rounded-2xl shadow p-6 space-y-4">
+          <div class="flex flex-wrap gap-6 justify-start">
+            <div class="bg-gray-50 rounded-xl shadow p-4 min-w-[140px] text-center">
+              <div class="text-xs text-gray-500">Phase</div>
+              <div class="text-lg font-semibold">Workshops</div>
+            </div>
+            <div class="bg-gray-50 rounded-xl shadow p-4 min-w-[140px] text-center">
+              <div class="text-xs text-gray-500">Progress</div>
+              <div class="text-lg font-semibold">{{ workspaceProgress }}%</div>
+            </div>
+            <div class="bg-gray-50 rounded-xl shadow p-4 min-w-[140px] text-center">
+              <div class="text-xs text-gray-500">Pending Decisions</div>
+              <div class="text-lg font-semibold">{{ decTotal - decRes }}</div>
+            </div>
+          </div>
+
+          <div class="flex gap-3 flex-wrap mt-4">
+            <button class="px-4 py-2 rounded-lg border hover:border-[#052c65]">Schedule Workshop</button>
+            <button class="px-4 py-2 rounded-lg border hover:border-[#052c65]">Import Notes</button>
+            <button class="px-4 py-2 rounded-lg" [ngClass]="'text-white bg-[#052c65] hover:bg-[#041f47]'">
+              Review & Sign Off
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Section -->
+        <section class="bg-white rounded-2xl shadow overflow-hidden">
+          <!-- Tabs -->
+          <div class="border-b px-6 pt-4">
+            <div class="flex items-center gap-4 text-sm font-medium">
+              <button class="px-3 py-2 text-[#052c65] border-b-2 border-[#052c65]">Finance</button>
+              <button class="px-3 py-2 text-gray-500 hover:text-gray-800">Integrations</button>
+              <button class="px-3 py-2 text-gray-500 hover:text-gray-800">Payroll</button>
+            </div>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="flex items-center justify-between px-6 py-3 bg-gray-50 border-b">
+            <div class="flex items-center gap-2 text-sm">
+              <button class="px-3 py-1 rounded border hover:border-[#052c65]">H2</button>
+              <button class="px-3 py-1 rounded border hover:border-[#052c65]">Bold</button>
+              <button class="px-3 py-1 rounded border hover:border-[#052c65]">Bullet</button>
+              <button class="px-3 py-1 rounded border hover:border-[#052c65]">Checklist</button>
+              <!-- New Add Discussion button -->
+              <button class="ml-4 px-3 py-1 rounded bg-[#052c65] text-white hover:bg-[#041f47]">Add Discussion</button>
+            </div>
+            <div class="text-xs text-gray-500">Auto-saved • v0.7 Draft</div>
+          </div>
+
+          <!-- Content -->
+          <div class="px-6 py-5 space-y-4 text-sm text-gray-800">
+            <div class="text-gray-500 text-xs">Meeting: Finance Workshop 03 — 10:00–11:30</div>
+
+            <!-- Eerly Summary Card -->
+            <div class="rounded-xl p-3 border relative"
+              style="background:rgba(5,44,101,.08);border-color:rgba(5,44,101,.4)">
+              <div class="flex justify-between items-start mb-1">
+                <div class="text-xs font-semibold" style="color:#052c65">Eerly Summary</div>
+                <div class="flex gap-2">
+                  <!-- Edit Icon -->
+                  <button class="text-[#052c65] hover:text-[#041f47]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M16.5 3.5a2.121 2.121 0 013 3L12 14l-4 1 1-4 7.5-7.5z" />
+                    </svg>
+                  </button>
+                  <!-- Delete Icon -->
+                  <button class="text-red-500 hover:text-red-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7L5 7M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>Company Codes in scope: 1000, 1100.</li>
+                <li>Tax codes to be standardized (EU VAT set).</li>
+                <li>JE approval workflow: 2-step for amounts over 50k.</li>
+              </ul>
+            </div>
+
+            <div class="border rounded-xl p-3">
+              <div class="text-xs text-gray-500 mb-1">Draft Requirement</div>
+              <p>As a Finance User, I need to post a Journal Entry with reversal so that month-end corrections are
+                streamlined.</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-2 rounded-lg border hover:border-[#052c65]">Promote to Spec</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+
+      <!-- Spec (Interactive) -->
+      <section *ngIf="isTab('spec')" class="hidden lg:block">
+        <div class="grid grid-cols-12 gap-6 h-[calc(100vh-80px)]">
+
+          <!-- Feed column -->
+          <aside
+            class="col-span-12 lg:col-span-3 bg-white border rounded-l-2xl shadow flex flex-col overflow-hidden min-h-0">
+            <div class="p-4 border-b flex items-center justify-between font-semibold text-gray-800">
+              <span>Ask Eerly</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-[#052c65]/10 text-[#052c65]">{{ feedItems.length }}
+                updates</span>
+            </div>
+
+            <!-- Scrollable feed list -->
+            <div class="flex-1 overflow-auto p-3 space-y-3 text-sm">
+              <div *ngFor="let f of feedItems"
+                class="border rounded-xl bg-gray-50 hover:bg-gray-100 p-4 shadow-sm transition">
+                <div class="font-medium text-gray-800">{{ f.title }}</div>
+                <div class="text-gray-600 mt-1">{{ f.detail }}</div>
+              </div>
+            </div>
+
+            <!-- Bottom input always visible -->
+            <div class="p-3 border-t flex items-center gap-2 flex-none bg-white">
+              <input [(ngModel)]="newFeed" style="width:50px"
+                class="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#052c65]"
+                placeholder="Ask, write, create anything" />
+              <button (click)="addFeed()"
+                class="flex-none bg-[#052c65] text-white px-4 py-2 rounded-full hover:bg-[#031d40] transition">
+                ▶
+              </button>
+            </div>
+          </aside>
+
+          <!-- Document area -->
+          <section class="col-span-12 lg:col-span-6 bg-white rounded-2xl shadow flex flex-col overflow-hidden min-h-0">
+
+            <!-- Document Tabs -->
+            <div class="flex items-center gap-3 border-b pb-3 px-4">
+              <button (click)="setDoc('document')" class="px-3 py-2 rounded-t-lg text-sm font-medium whitespace-nowrap"
+                [ngClass]="activeDoc==='document' ? 'bg-gray-100 text-[#052c65]' : 'text-gray-600 hover:bg-gray-50'">
+                Process Definition Document
+              </button>
+              <button (click)="setDoc('processes')" class="px-3 py-2 rounded-t-lg text-sm font-medium whitespace-nowrap"
+                [ngClass]="activeDoc==='processes' ? 'bg-gray-100 text-[#052c65]' : 'text-gray-600 hover:bg-gray-50'">
+                Swimlane Diagram
+              </button>
+            </div>
+
+            <!-- Document Content -->
+            <div id="docArea" class="flex-1 overflow-auto p-4 space-y-4 min-h-0">
+
+              <!-- Document -->
+              <div *ngIf="activeDoc==='document'" class="space-y-4">
+                <input [(ngModel)]="docTitle"
+                  class="w-full text-2xl font-semibold text-gray-900 bg-transparent outline-none" />
+
+                <div class="border rounded-2xl overflow-hidden">
+                  <!-- Section Header -->
+                  <div class="bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-700">1 Executive Summary</div>
+
+                  <!-- Content Grid -->
+                  <div class="divide-y text-sm">
+                    <!-- Grid Header -->
+                    <div class="grid grid-cols-4 gap-3 px-4 py-3 font-medium text-gray-700">
+                      <div>Element</div>
+                      <div class="col-span-3">Description</div>
+                    </div>
+
+                    <!-- Grid Content -->
+                    <div class="grid grid-cols-4 gap-3 px-4 py-3 items-start">
+                      <div class="text-gray-600">Objective</div>
+                      <div class="col-span-3 flex flex-col">
+                        <textarea [(ngModel)]="docBody" rows="4"
+                          class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-[#052c65] focus:outline-none"></textarea>
+
+                        <!-- Button aligned to bottom-right -->
+                        <div class="flex justify-end mt-2">
+                          <button class="text-xs px-2 py-1 rounded-lg border bg-white shadow hover:bg-gray-50">
+                            + Comment
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Processes -->
+              <div *ngIf="activeDoc==='processes'" class="flex gap-3 h-full min-h-0">
+                <div class="w-10 bg-white border-r flex flex-col items-center py-3 gap-3 text-gray-500">
+                  <button title="Task">◻</button>
+                  <button title="Subprocess">▭</button>
+                  <button title="Flow">⟿</button>
+                  <button title="Two-way">↔</button>
+                </div>
+                <div
+                  class="relative flex-1 bg-[linear-gradient(90deg,#f1f5f9_1px,transparent_1px),linear-gradient(0deg,#f1f5f9_1px,transparent_1px)] bg-[length:24px_24px] rounded-lg overflow-auto h-full p-2">
+                  <div *ngFor="let n of processNodes"
+                    class="absolute bg-white border rounded-lg shadow px-3 py-2 text-xs" [style.left]="n.x"
+                    [style.top]="n.y">{{ n.label }}</div>
+                  <div class="absolute right-3 bottom-3 bg-white/80 border rounded px-2 py-1 text-[10px] text-gray-600">
+                    Static demo. Use AI to auto-layout.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- Comments -->
+          <aside
+            class="col-span-12 lg:col-span-3 bg-white border rounded-r-2xl shadow flex flex-col overflow-hidden min-h-0">
+            <div class="p-4 border-b flex items-center justify-between font-semibold text-gray-800">
+              <span>Comments</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">{{ openComments }} open</span>
+            </div>
+
+            <!-- Scrollable comment list -->
+            <div class="flex-1 overflow-auto p-3 space-y-3 text-sm">
+              <div *ngFor="let c of comments"
+                class="border rounded-xl bg-gray-50 hover:bg-gray-100 p-4 shadow-sm transition">
+                <div class="flex items-start justify-between">
+                  <div class="font-medium text-gray-800">{{ c.author }} on {{ c.anchor }}</div>
+                  <span class="text-xs px-2 py-0.5 rounded-full"
+                    [ngClass]="c.status==='open' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'">{{
+                    c.status }}</span>
+                </div>
+                <div class="text-gray-700 mt-2">{{ c.text }}</div>
+                <div class="text-xs text-gray-500 mt-1">{{ c.ts | date:'short' }}</div>
+                <div *ngIf="c.status==='open'" class="mt-2">
+                  <button (click)="resolveComment(c)"
+                    class="px-2 py-1 rounded border text-xs hover:bg-gray-50">Resolve</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom input always visible -->
+            <div class="p-3 border-t flex items-center gap-2 flex-none bg-white">
+              <input [(ngModel)]="newComment" style="width:50px"
+                class="flex-1 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#052c65]"
+                placeholder="Add comment for selected anchor…" />
+              <button (click)="addComment()"
+                class="flex-none bg-[#052c65] text-white px-4 py-2 rounded-full hover:bg-[#031d40] transition">
+                Comment
+              </button>
+            </div>
+          </aside>
+
+        </div>
+
+      </section>
+
+
+
+
+      <!-- Editor -->
+      <section *ngIf="isTab('editor')" class="space-y-4">
+        <div class="bg-white rounded-xl shadow p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2 text-sm">
+            <button class="px-3 py-1 rounded border hover:border-[#052c65]">H2</button>
+            <button class="px-3 py-1 rounded border hover:border-[#052c65]">Bold</button>
+            <button class="px-3 py-1 rounded border hover:border-[#052c65]">Bullet</button>
+            <button class="px-3 py-1 rounded border hover:border-[#052c65]">Checklist</button>
+            <button (click)="applySuggest()" class="px-3 py-1 rounded border hover:border-[#052c65]">Apply Eerly
+              Suggestions</button>
+          </div>
+          <button (click)="addVersion()" class="px-3 py-1 bg-[#052c65] text-white rounded-lg hover:bg-[#041f47]">Save
+            Version</button>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5">
+          <input [(ngModel)]="edTitle" class="w-full text-xl font-semibold text-gray-800 bg-transparent outline-none" />
+          <textarea [(ngModel)]="edBody" rows="3"
+            class="mt-2 w-full text-sm text-gray-700 bg-transparent outline-none border rounded p-2"></textarea>
+        </div>
+
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+          <div class="px-5 py-3 border-b text-sm font-semibold text-gray-700">Key Fields</div>
+          <div id="edTable" class="divide-y">
+            <div *ngFor="let r of edRows; let idx=index" class="grid grid-cols-3 gap-4 px-5 py-3 items-center">
+              <div class="text-sm text-gray-600">{{ r.field }}</div>
+              <input class="text-sm border rounded-lg px-2 py-1" [(ngModel)]="r.value" />
+              <div class="flex items-center gap-2">
+                <input class="text-sm border rounded-lg px-2 py-1 flex-1" [(ngModel)]="r.note" />
+                <button (click)="addRowComment(r)" class="text-xs px-2 py-1 rounded border hover:border-[#052c65]">+
+                  Comment</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <section class="bg-white rounded-xl shadow p-4">
+            <div class="font-semibold text-gray-700 mb-2">Comments</div>
+            <div id="edComments" class="space-y-2 text-sm">
+              <div *ngFor="let c of edComments" class="border rounded-lg p-3">
+                <div class="flex items-center justify-between">
+                  <div class="font-medium text-gray-800">{{ c.author }} • <span class="text-xs text-gray-500">{{ c.ts |
+                      date:'short' }}</span></div>
+                  <span class="text-xs px-2 py-0.5 rounded-full"
+                    [ngClass]="c.status==='open' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'">{{
+                    c.status }}</span>
+                </div>
+                <div class="text-gray-700 mt-1">{{ c.text }}</div>
+                <div class="text-xs text-gray-500 mt-1">Anchor: {{ c.anchor }}</div>
+                <div *ngIf="c.status==='open'" class="mt-2"><button (click)="resolveEdComment(c)"
+                    class="px-2 py-1 rounded border text-xs">Resolve</button></div>
+              </div>
+            </div>
+            <div class="mt-3 flex gap-2">
+              <input [(ngModel)]="edNewComment" class="flex-1 border rounded-lg px-3 py-2 text-sm"
+                placeholder="Add a comment…" />
+              <button (click)="addEdComment()"
+                class="px-3 py-2 rounded-lg border hover:border-[#052c65]">Comment</button>
+            </div>
+          </section>
+
+          <section class="bg-white rounded-xl shadow p-4">
+            <div class="font-semibold text-gray-700 mb-2">Versions</div>
+            <div id="edVersions" class="space-y-2 text-sm">
+              <div *ngFor="let v of versions" class="border rounded-lg p-3 flex items-center justify-between">
+                <div>
+                  <div class="font-medium text-gray-800">{{ v.label }}</div>
+                  <div class="text-xs text-gray-500">{{ v.ts | date:'short' }}</div>
+                </div>
+                <div class="flex gap-2">
+                  <button (click)="restoreVersion(v)" class="px-2 py-1 rounded border text-xs">Restore</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="bg-white rounded-xl shadow p-4">
+            <div class="font-semibold text-gray-700 mb-2">Audit Trail</div>
+            <div id="edAudit" class="space-y-2 text-sm">
+              <div *ngFor="let a of audit" class="border rounded-lg p-3 text-gray-700">
+                <div class="text-sm">{{ a.text }}</div>
+                <div class="text-xs text-gray-500">{{ a.ts | date:'short' }}</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- Post-Build -->
+      <section *ngIf="isTab('postbuild')" class="space-y-4">
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="pbKPIs">
+          <div class="bg-white rounded-xl border p-4 shadow-sm">
+            <div class="text-xs text-gray-500">Build Status</div>
+            <div class="text-2xl font-semibold text-gray-900 mt-1">{{ pbMetrics.build }}</div>
+          </div>
+          <div class="bg-white rounded-xl border p-4 shadow-sm">
+            <div class="text-xs text-gray-500">Eerly Coverage Score</div>
+            <div class="text-2xl font-semibold text-gray-900 mt-1">{{ pbMetrics.coverage }}%</div>
+          </div>
+          <div class="bg-white rounded-xl border p-4 shadow-sm">
+            <div class="text-xs text-gray-500">Spec Completeness</div>
+            <div class="text-2xl font-semibold text-gray-900 mt-1">{{ pbMetrics.spec }}%</div>
+          </div>
+          <div class="bg-white rounded-xl border p-4 shadow-sm">
+            <div class="text-xs text-gray-500">Optimizations Applied</div>
+            <div class="text-2xl font-semibold text-gray-900 mt-1">{{ pbMetrics.opt }}</div>
+          </div>
+          <div class="bg-white rounded-xl border p-4 shadow-sm">
+            <div class="text-xs text-gray-500">Open Exceptions</div>
+            <div class="text-2xl font-semibold text-gray-900 mt-1">{{ pbMetrics.ex }}</div>
+          </div>
+        </div>
+
+        <!-- Post-Build Tabs -->
+        <div class="bg-white border rounded-xl p-3 flex items-center gap-2">
+          <button (click)="setPbTab('spec')" [ngClass]="isPbTab('spec') ? 'bg-gray-100' : ''"
+            class="px-3 py-2 rounded-lg text-sm font-medium">Living Spec</button>
+          <button (click)="setPbTab('tests')" [ngClass]="isPbTab('tests') ? 'bg-gray-100' : ''"
+            class="px-3 py-2 rounded-lg text-sm font-medium">Processes & Tests</button>
+          <button (click)="setPbTab('changes')" [ngClass]="isPbTab('changes') ? 'bg-gray-100' : ''"
+            class="px-3 py-2 rounded-lg text-sm font-medium">Change Requests</button>
+          <button (click)="setPbTab('optimizations')" [ngClass]="isPbTab('optimizations') ? 'bg-gray-100' : ''"
+            class="px-3 py-2 rounded-lg text-sm font-medium">Optimizations</button>
+          <button (click)="setPbTab('evidence')" [ngClass]="isPbTab('evidence') ? 'bg-gray-100' : ''"
+            class="px-3 py-2 rounded-lg text-sm font-medium">Evidence</button>
+        </div>
+
+        <!-- PB Spec -->
+        <div *ngIf="isPbTab('spec')" class="grid grid-cols-12 gap-4" id="pb-spec">
+          <div class="col-span-12 lg:col-span-12 bg-white border rounded-xl overflow-hidden">
+            <div class="px-4 py-3 border-b font-semibold">Living Spec</div>
+            <div class="p-4 space-y-4 text-sm" id="pbSpecBody">
+              <div *ngFor="let s of pbSections" class="border rounded-lg p-4">
+                <div class="font-semibold text-gray-800">{{ s.title }}</div>
+                <div class="text-gray-700 mt-2">{{ s.body }}</div>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span *ngFor="let ev of s.evidence" class="text-xs px-2 py-1 rounded border bg-gray-50">{{ ev.type ===
+                    'screenshot' ? '📷 ' : '' }}{{ ev.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PB Tests -->
+        <div *ngIf="isPbTab('tests')" class="bg-white border rounded-xl overflow-hidden p-4" id="pb-tests">
+          <div class="px-4 py-3 border-b flex items-center justify-between">
+            <div class="font-semibold">Processes & Tests</div>
+            <div class="flex items-center gap-2">
+              <button (click)="generatePbTests()" class="px-2 py-1 border rounded text-xs">
+                Generate from Spec
+              </button>
+              <button class="px-2 py-1 border rounded text-xs">Generate from Process</button>
+            </div>
+          </div>
+
+          <div class="p-4 overflow-x-auto" id="pbTestsTable" [innerHTML]="pbTestsTableHtml"></div>
+
+          <!-- <div class="p-4 grid grid-cols-12 gap-4">
+            <div class="col-span-12 lg:col-span-8 border rounded-xl p-4">
+              <div class="font-semibold text-gray-800 mb-2">Coverage Heatmap</div>
+              <div class="grid grid-cols-4 gap-2 text-xs" id="pbCoverage">
+                <div class="text-gray-500">Requirement</div>
+                <div class="text-gray-500">Happy</div>
+                <div class="text-gray-500">Edge</div>
+                <div class="text-gray-500">Negative</div>
+
+                <ng-container *ngFor="let c of pbCoverageCells">
+                  <div class="py-1 text-gray-700">{{ c.req }}</div>
+                  <div class="h-4 rounded"
+                    [ngClass]="c.happy === 'full' ? 'bg-green-500' : c.happy === 'partial' ? 'bg-amber-400' : 'bg-gray-300'">
+                  </div>
+                  <div class="h-4 rounded"
+                    [ngClass]="c.edge === 'full' ? 'bg-green-500' : c.edge === 'partial' ? 'bg-amber-400' : 'bg-gray-300'">
+                  </div>
+                  <div class="h-4 rounded"
+                    [ngClass]="c.negative === 'full' ? 'bg-green-500' : c.negative === 'partial' ? 'bg-amber-400' : 'bg-gray-300'">
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+
+            <div class="col-span-12 lg:col-span-4 border rounded-xl p-4">
+              <div class="font-semibold text-gray-800">Eerly Coverage Score</div>
+              <div class="text-3xl font-semibold mt-1" id="pbCoverageScore">{{ pbCoverageScore }}%</div>
+              <div class="text-xs text-gray-500">Critical path: 100% · High-risk: 76%</div>
+              <div class="mt-3">
+                <div class="font-semibold text-gray-800 mb-1">Gaps</div>
+                <div class="text-sm text-gray-600" id="pbGapsText">{{ pbGapsText }}</div>
+                <button (click)="fixGaps()" id="pbFixGaps" class="mt-2 px-3 py-1 border rounded text-xs">Fix with
+                  AI</button>
+              </div>
+            </div>
+          </div> -->
+        </div>
+
+        <!-- PB Changes -->
+        <div *ngIf="isPbTab('changes')" class="bg-white border rounded-xl overflow-hidden p-4" id="pb-changes">
+          <div class="px-4 py-3 border-b font-semibold">Change Requests / Tickets</div>
+          <div id="pbChanges" class="p-4 space-y-2">
+            <div *ngFor="let c of pbChanges" class="border rounded-lg p-3 flex items-center justify-between">
+              <div>
+                <div class="font-medium text-gray-800">{{ c.title }}</div>
+                <div class="text-xs text-gray-500">{{ c.id }} · Impact: {{ c.impact }} · Source: {{ c.source }}</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 rounded-full"
+                  [ngClass]="c.status==='Proposed' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'">{{
+                  c.status }}</span>
+                <button class="px-2 py-1 border rounded text-xs">Promote to Draft</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PB Optimizations -->
+        <div *ngIf="isPbTab('optimizations')" class="bg-white border rounded-xl overflow-hidden p-4"
+          id="pb-optimizations">
+          <div class="px-4 py-3 border-b font-semibold">Optimizations & Considerations</div>
+          <div id="pbInsights" class="p-4 space-y-2">
+            <div *ngFor="let i of pbInsights" class="border rounded-lg p-3 flex items-center justify-between">
+              <div>
+                <div class="font-medium text-gray-800">{{ i.title }}</div>
+                <div class="text-xs text-gray-500">{{ i.area }} · {{ i.type }}</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 rounded-full"
+                  [ngClass]="i.status==='Applied' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">{{
+                  i.status }}</span>
+                <button class="px-2 py-1 border rounded text-xs">Apply to vNext</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PB Evidence -->
+        <div *ngIf="isPbTab('evidence')" class="bg-white border rounded-xl overflow-hidden p-4" id="pb-evidence">
+          <div class="px-4 py-3 border-b flex items-center justify-between">
+            <div class="font-semibold">Evidence Archive</div>
+            <input [(ngModel)]="pbEvQuery" id="pbEvSearch" class="border rounded px-2 py-1 text-sm"
+              placeholder="Search evidence..." />
+          </div>
+
+          <div id="pbEvidence" class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div *ngFor="let pack of filteredEvidencePacks" class="border rounded-lg p-3">
+              <div class="font-medium text-gray-800">{{ pack.name }}</div>
+              <div class="text-xs text-gray-500">{{ pack.meta }}</div>
+              <div class="text-xs text-gray-500 mt-1">{{ pack.date }}</div>
+              <div class="mt-2 flex gap-2">
+                <button class="px-2 py-1 border rounded text-xs">Download</button>
+                <button class="px-2 py-1 border rounded text-xs">Open</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

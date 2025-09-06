@@ -1,0 +1,456 @@
+<!-- Top Bar -->
+<header class="sticky top-0 z-20 bg-white/90 backdrop-blur border-b shadow-sm">
+  <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <!-- <div class="h-8 w-8 rounded-xl bg-[#052c65]" aria-hidden="true"></div> -->
+      <span class="text-sm font-semibold tracking-wide">Eerly AI · Existing Customer</span>
+    </div>
+    <div class="flex items-center gap-2 text-sm">
+      <span id="ctxProject" class="text-gray-600">ACME S/4 Finance Rollout (PRJ-2043)</span>
+      <span class="text-gray-300">•</span>
+      <span id="ctxSys" class="text-gray-600">S4P-PRD (PROD)</span>
+    </div>
+  </div>
+</header>
+
+<!-- Stepper -->
+<div class="mx-auto max-w-7xl px-4 pt-5">
+  <div id="stepper" class="bg-white border rounded-2xl p-3 grid grid-cols-7 gap-2 text-xs font-medium">
+    <button *ngFor="let s of SCREENS; let i = index" (click)="switchTo(s)" class="px-2 py-1 rounded"
+      [ngClass]="currentScreen === s ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'">
+      {{ i+1 }}. {{ labels[i] }}
+    </button>
+  </div>
+</div>
+
+<!-- Main -->
+<main class="mx-auto max-w-7xl px-4 py-6 space-y-8">
+
+  <!-- HOME -->
+  <section id="HOME" *ngIf="currentScreen === 'HOME'" class="space-y-6">
+    <div class="grid grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl border p-4">
+        <div class="text-xs text-gray-500">Customer</div>
+        <div class="text-2xl font-semibold" id="custName">Globex Holdings</div>
+        <div class="text-xs text-gray-500" id="custId">CUST-8821</div>
+      </div>
+      <div class="bg-white rounded-xl border p-4">
+        <div class="text-xs text-gray-500">Landscape</div>
+        <div class="text-2xl font-semibold" id="sysId">S4P-PRD</div>
+        <div class="text-xs text-gray-500">PROD</div>
+      </div>
+      <div class="bg-white rounded-xl border p-4">
+        <div class="text-xs text-gray-500">Last Sync</div>
+        <div class="text-2xl font-semibold">—</div>
+      </div>
+      <div class="bg-white rounded-xl border p-4">
+        <div class="text-xs text-gray-500">Readiness</div>
+        <div class="text-2xl font-semibold text-amber-600">Needs baseline</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6">
+      <aside class="col-span-12 md:col-span-3 bg-white rounded-xl border p-4 h-fit">
+        <div class="font-semibold text-gray-800 mb-2">Setup Checklist</div>
+        <ul id="homeChecklist" class="space-y-2 text-sm text-gray-700">
+          <li *ngFor="let h of homeList; let i = index" class="flex items-center justify-between">
+            <span>{{ h.t }}</span>
+            <button class="px-2 py-1 border rounded text-xs" (click)="toggleHome(i)">{{ h.done ? 'Done' : 'Mark'
+              }}</button>
+          </li>
+        </ul>
+      </aside>
+
+      <main class="col-span-12 md:col-span-6 space-y-4">
+        <div class="bg-white rounded-xl border p-6">
+          <div class="text-lg font-semibold text-gray-900">Get started</div>
+          <p class="text-sm text-gray-600 mt-1">Connect to your live SAP system, let Eerly read configuration & usage,
+            and auto-create your living documentation.</p>
+          <button (click)="switchTo('Discovery')" class="mt-4 px-4 py-2 text-white rounded-lg"
+            style="background:#052c65">Start Connection</button>
+        </div>
+        <div class="bg-white rounded-xl border p-6">
+          <div class="font-semibold text-gray-800">What Eerly will do</div>
+          <ul class="list-disc pl-6 text-sm text-gray-700 mt-2 space-y-1">
+            <li>Inventory modules, org units, and key customizing</li>
+            <li>Detect integrations, jobs, and transport history</li>
+            <li>Generate workbook/spec baseline with evidence links</li>
+            <li>Set up drift detection & ticket-driven change control</li>
+          </ul>
+        </div>
+      </main>
+
+      <aside class="col-span-12 md:col-span-3 bg-white rounded-xl border p-4 h-fit">
+        <div class="font-semibold text-gray-800 mb-2">Eerly Copilot</div>
+        <div class="text-sm text-gray-600">Try: “Estimate time for discovery for S/4 PROD”</div>
+        <div class="mt-3 flex gap-2 flex-wrap">
+          <button class="px-2 py-1 border rounded text-xs" (click)="switchTo('CONNECT')">Connect now</button>
+          <button class="px-2 py-1 border rounded text-xs" (click)="switchTo('SPEC')">Preview baseline</button>
+          <button class="px-2 py-1 border rounded text-xs" (click)="switchTo('TICKETS')">Enable ticket sync</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- CONNECT WIZARD -->
+  <section id="CONNECT" *ngIf="currentScreen === 'CONNECT'">
+    <div class="bg-white rounded-2xl border overflow-hidden">
+      <div class="bg-gray-50 px-6 py-3 text-sm font-medium flex items-center gap-4">
+        <span id="cw1" [ngClass]="cwStep===1 ? 'text-[#052c65]' : 'text-gray-500'">1. Authenticate</span>
+        <span class="text-gray-300">›</span>
+        <span id="cw2" [ngClass]="cwStep===2 ? 'text-[#052c65]' : 'text-gray-500'">2. Select Scope</span>
+        <span class="text-gray-300">›</span>
+        <span id="cw3" [ngClass]="cwStep===3 ? 'text-[#052c65]' : 'text-gray-500'">3. Confirm</span>
+      </div>
+      <div id="cwBody" class="p-6">
+        <!-- Step 1 -->
+        <div *ngIf="cwStep === 1" class="grid grid-cols-2 gap-6">
+          <div>
+            <div class="font-semibold text-gray-800">SAP Credentials</div>
+            <div class="text-sm text-gray-600">Read-only service user or OAuth client.</div>
+            <div class="mt-3 space-y-3">
+              <input id="cwHost" class="w-full border rounded-lg px-3 py-2" placeholder="Host e.g. s4p.example.com" />
+              <input id="cwClient" class="w-full border rounded-lg px-3 py-2" placeholder="Client e.g. 100" />
+              <input id="cwUser" class="w-full border rounded-lg px-3 py-2" placeholder="Username" />
+              <input id="cwPass" type="password" class="w-full border rounded-lg px-3 py-2"
+                placeholder="Password / Secret" />
+            </div>
+          </div>
+
+          <div class="rounded-xl p-4 border" style="background:rgba(5,44,101,.08);border-color:rgba(5,44,101,.25)">
+            <div class="font-semibold" style="color:#052c65">Security</div>
+            <ul class="list-disc pl-6 text-sm mt-2" style="color:#052c65">
+              <li>Least-privilege, read-only</li>
+              <li>Artifacts hashed (SHA) for audit</li>
+              <li>No personal data collected</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div *ngIf="cwStep === 2" class="grid grid-cols-2 gap-6">
+          <div>
+            <div class="font-semibold text-gray-800">Select Modules in Scope</div>
+            <div class="mt-3 grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 p-2 border rounded"><input id="sc-fin" type="checkbox" />
+                Finance</label>
+              <label class="flex items-center gap-2 p-2 border rounded"><input id="sc-int" type="checkbox" />
+                Integrations</label>
+              <label class="flex items-center gap-2 p-2 border rounded"><input id="sc-pay" type="checkbox" />
+                Payroll</label>
+              <label class="flex items-center gap-2 p-2 border rounded"><input id="sc-hr" type="checkbox" /> Core
+                HR</label>
+            </div>
+          </div>
+          <div>
+            <div class="font-semibold text-gray-800">Connection Methods</div>
+            <label class="flex items-center gap-2 text-sm mt-2"><input id="m-rfc" type="checkbox" checked /> RFC</label>
+            <label class="flex items-center gap-2 text-sm mt-2"><input id="m-odata" type="checkbox" checked />
+              OData/API</label>
+            <label class="flex items-center gap-2 text-sm mt-2"><input id="m-db" type="checkbox" /> Read-replica DB
+              (optional)</label>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div *ngIf="cwStep === 3" class="p-2">
+          <div class="font-semibold text-gray-800">Confirm & Connect</div>
+          <div class="text-sm text-gray-600 mt-1">Connect to <span class="font-mono">S4P-PRD</span> and inventory:
+            Finance, Integrations.</div>
+          <div class="mt-4">
+            <button id="discNext" class="px-6 py-2 rounded-lg" [ngClass]="'text-white'" [style.background]="'#052c65'"
+              (click)="switchTo('INVENTORY')">
+              View Inventory & Gaps
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 flex justify-between">
+      <button class="px-3 py-1 border rounded-lg" (click)="switchTo('HOME')">Back</button>
+      <div>
+        <button id="cwPrev" class="px-3 py-1 border rounded-lg" [class.hidden]="cwStep===1"
+          (click)="cwPrev()">Back</button>
+        <button id="cwNext" class="px-3 py-1 rounded-lg text-white" style="background:#052c65"
+          (click)="cwNext()">Continue</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISCOVERY -->
+  <section id="DISCOVER" *ngIf="currentScreen === 'DISCOVER'">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-gray-800">Discovery</h2>
+      <button class="px-3 py-1 border rounded-lg" (click)="switchTo('CONNECT')">Back</button>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4">
+      <!-- Left: Progress & Events -->
+      <div class="col-span-2 bg-white border rounded-xl p-4">
+        <div class="font-semibold text-gray-800">Discovery Progress</div>
+        <div class="mt-3">
+          <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+            <div id="discBar" class="h-3" [style.width.%]="discPct" style="background:#052c65"></div>
+          </div>
+          <div id="discPct" class="text-xs text-gray-500 mt-1">{{ discPct }}%</div>
+        </div>
+
+        <div id="discEvents" class="mt-3 space-y-2 text-sm text-gray-700">
+          <div *ngFor="let e of discEvents" class="border rounded p-2">{{ e }}</div>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+          <button id="cwConnect" (click)="cwConnect()" class="px-4 py-2 text-white rounded-lg"
+            style="background:#052c65">Connect & Run Discovery</button>
+        </div>
+      </div>
+
+      <!-- Right: Controls -->
+      <div class="bg-white border rounded-xl p-4 flex flex-col">
+        <div class="font-semibold text-gray-800">Controls</div>
+        <div class="mt-2 flex gap-2">
+          <button id="discStart" class="px-3 py-1 border rounded" (click)="startDiscovery()">Start</button>
+          <button id="discReset" class="px-3 py-1 border rounded" (click)="discReset()">Reset</button>
+        </div>
+
+        <!-- Upload Button -->
+        <div class="mt-3">
+          <label
+            class="w-full flex items-center justify-center gap-2 px-3 py-2 border rounded-lg text-sm cursor-pointer bg-gray-50 hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#052c65]" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12V4m0 8l-4-4m4 4l4-4" />
+            </svg>
+            <span class="text-[#052c65] font-medium">Upload File</span>
+            <input type="file" class="hidden" />
+          </label>
+        </div>
+
+        <div class="mt-4 text-xs text-gray-500">Read-only; artifacts hashed for audit.</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- INVENTORY -->
+  <section id="INVENTORY" *ngIf="currentScreen === 'INVENTORY'">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-gray-800">Inventory & Gaps</h2>
+      <div class="flex items-center gap-2">
+        <button class="px-3 py-1 border rounded-lg" (click)="switchTo('DISCOVER')">Back</button>
+        <button id="toSpec" class="px-3 py-1 text-white rounded-lg" style="background:#052c65"
+          (click)="switchTo('SPEC')">Generate Baseline Spec</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6">
+      <aside class="col-span-12 md:col-span-3 bg-white rounded-xl border p-4 h-fit">
+        <div class="font-semibold text-gray-800">Filters</div>
+        <div class="mt-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" id="gapOnly" [(ngModel)]="gapOnly"
+              name="gapOnly" /> Show gaps only</label>
+          <label class="flex items-center gap-2 mt-2"><input type="checkbox" id="incTrans" [(ngModel)]="incTrans"
+              name="incTrans" /> Include transports</label>
+        </div>
+      </aside>
+
+      <main class="col-span-12 md:col-span-6 space-y-3" id="invList">
+        <div *ngFor="let m of invModules">
+          <div *ngIf="!gapOnly || (m.gaps && m.gaps.length)" class="bg-white rounded-xl border p-4">
+            <div class="flex items-center justify-between">
+              <div class="font-semibold text-gray-800">{{ m.key }}</div>
+              <span class="text-xs px-2 py-0.5 rounded-full"
+                [ngClass]="m.coverage >= 80 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                {{ m.coverage }}% coverage
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
+              <div>
+                <div class="text-gray-500 text-xs mb-1">Detected</div>
+                <ul class="list-disc pl-6 text-gray-700 space-y-1">
+                  <li *ngFor="let it of m.items">{{ it }}</li>
+                </ul>
+              </div>
+              <div>
+                <div class="text-gray-500 text-xs mb-1">Gaps</div>
+                <ul class="list-disc pl-6 text-gray-700 space-y-1">
+                  <li *ngFor="let g of m.gaps">{{ g }}</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="mt-3 flex gap-2">
+              <button class="px-3 py-1 border rounded text-xs" (click)="createSection(m.key)">Create section in
+                Baseline</button>
+              <button class="px-3 py-1 border rounded text-xs" (click)="switchTo('TICKETS')">Open in Ticket
+                Sync</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="col-span-12 md:col-span-3 bg-white rounded-xl border p-4 h-fit text-sm">
+        <div class="font-semibold text-gray-800">Eerly Insights</div>
+        <div class="mt-2">Suggest adding negative tests for JE reversal; consider gzip level 6 for SAC feed.</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SPEC BUILDER -->
+  <section id="SPEC" *ngIf="currentScreen === 'SPEC'">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-gray-800">Baseline Spec Builder</h2>
+      <div class="flex items-center gap-2">
+        <span id="specReady" class="text-xs px-2 py-0.5 rounded-full"
+          [ngClass]="allSpecAccepted ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+          {{ allSpecAccepted ? 'Ready to publish' : 'Review pending' }}
+        </span>
+        <button class="px-3 py-1 border rounded-lg" (click)="switchTo('INVENTORY')">Back</button>
+        <button id="specPublish" class="px-3 py-1 rounded-lg text-white" [disabled]="!allSpecAccepted"
+          [ngClass]="allSpecAccepted ? '' : 'bg-gray-300 cursor-not-allowed'"
+          [style.background]="allSpecAccepted ? '#052c65' : ''" (click)="specPublish()">
+          Publish Baseline
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4">
+      <aside class="bg-white border rounded-xl p-4 h-fit">
+        <div class="font-semibold text-gray-800">Sections</div>
+        <ul id="specSections" class="mt-2 space-y-1 text-sm">
+          <li *ngFor="let s of specSections" class="flex items-center justify-between">
+            <span>{{ s.title }}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full"
+              [ngClass]="s.accepted ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+              {{ s.accepted ? 'accepted' : 'review' }}
+            </span>
+          </li>
+        </ul>
+      </aside>
+
+      <main class="col-span-2 space-y-3" id="specCards">
+        <div *ngFor="let s of specSections; let i = index" class="bg-white border rounded-xl p-4">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold text-gray-800">{{ s.title }}</div>
+            <label class="text-sm flex items-center gap-2">
+              <input type="checkbox" [(ngModel)]="s.accepted" name="accepted{{i}}" /> Accept
+            </label>
+          </div>
+          <div class="text-sm text-gray-700 mt-2">{{ s.body }}</div>
+          <div class="mt-2 text-xs text-gray-500">Evidence:</div>
+          <ul class="list-disc pl-6 text-sm text-gray-700">
+            <li *ngFor="let e of s.evidence">{{ e }}</li>
+          </ul>
+        </div>
+      </main>
+    </div>
+
+    <p class="mt-3 text-xs text-gray-500">Publishing will create an immutable baseline package and hand off to your
+      Workspace.</p>
+  </section>
+
+  <!-- TICKETS -->
+  <section id="TICKETS" *ngIf="currentScreen === 'TICKETS'">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-gray-800">Ticket Sync</h2>
+      <button class="px-3 py-1 border rounded-lg" (click)="switchTo('INVENTORY')">Back</button>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4">
+      <aside class="bg-white border rounded-xl p-4 h-fit">
+        <div class="font-semibold text-gray-800">Rules</div>
+        <label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" id="rAutoCR" checked /> Auto-create
+          Change Requests</label>
+        <label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" id="rMapLabels" checked /> Map labels
+          ↔ process area</label>
+        <label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" id="rCloseOnSign" checked /> Close
+          ticket on sign-off</label>
+      </aside>
+
+      <main class="col-span-2 space-y-3">
+        <div class="bg-white border rounded-xl p-4">
+          <div class="font-semibold text-gray-800">Status</div>
+          <div class="text-sm text-gray-600 mt-1" id="tkStatus">{{ tkStatus }}</div>
+          <div class="mt-3 text-sm text-gray-700">Incoming tickets will be analyzed and mapped to spec sections;
+            approved changes will generate a draft baseline vNext.</div>
+          <div class="mt-3">
+            <button id="tkConnect" class="px-3 py-1 border rounded" (click)="tkConnect()">Connect
+              Jira/ServiceNow</button>
+            <button id="tkImport" class="px-3 py-1 border rounded ml-2" (click)="tkImport()">Import last 50
+              tickets</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <!-- SYNC -->
+  <section id="SYNC" *ngIf="currentScreen === 'SYNC'">
+    <div class="w-full bg-white border rounded-xl p-3 flex items-center gap-2">
+      <button class="px-3 py-2 border rounded text-sm" (click)="switchTo('SPEC')">Open Baseline</button>
+      <button class="px-3 py-2 border rounded text-sm" (click)="switchTo('TICKETS')">Open Ticket Sync</button>
+      <button id="openWorkspace" class="ml-auto px-3 py-2 text-white rounded" style="background:#052c65"
+        (click)="openWorkspace()">Open Workspace</button>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6 mt-4">
+      <aside class="col-span-12 md:col-span-3 bg-white rounded-xl border p-4 h-fit">
+        <div class="font-semibold text-gray-800">Schedule</div>
+        <div class="text-sm text-gray-700 mt-2">Frequency</div>
+        <select id="syncFreq" class="w-full border rounded px-2 py-1 mt-1" [(ngModel)]="syncFreq" name="syncFreq">
+          <option>Hourly</option>
+          <option>Nightly</option>
+          <option>Weekly</option>
+        </select>
+        <div class="text-sm text-gray-700 mt-3">Time (UTC)</div>
+        <input id="syncTime" class="w-full border rounded px-2 py-1 mt-1" [(ngModel)]="syncTime" name="syncTime" />
+        <div class="mt-3 text-xs text-gray-500">Drift alerts will notify owners and propose spec updates.</div>
+      </aside>
+
+      <main class="col-span-12 md:col-span-6 space-y-3">
+        <div class="bg-white border rounded-xl p-4">
+          <div class="font-semibold text-gray-800">Last Runs</div>
+          <table class="w-full text-sm mt-2">
+            <thead class="text-gray-500 text-left">
+              <tr>
+                <th class="py-1">When</th>
+                <th>Result</th>
+                <th>Detected changes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="syncRuns">
+              <tr *ngFor="let r of runs" class="border-t">
+                <td class="py-1">{{ r.when }}</td>
+                <td>{{ r.result }}</td>
+                <td>{{ r.changes }}</td>
+                <td class="text-right"><button class="px-2 py-1 border rounded text-xs">Open diff</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bg-white border rounded-xl p-4">
+          <div class="font-semibold text-gray-800">Signals</div>
+          <ul id="syncSignals" class="list-disc pl-6 text-sm text-gray-700 mt-2 space-y-1">
+            <li *ngFor="let s of syncSignals">{{ s }}</li>
+          </ul>
+        </div>
+      </main>
+
+      <aside class="col-span-12 md:col-span-3 bg-white rounded-xl border p-4 h-fit text-sm">
+        <div class="font-semibold text-gray-800">Eerly Actions</div>
+        <div class="mt-2 space-y-2">
+          <button class="px-3 py-1 border rounded w-full text-left">Generate delta tests</button>
+          <button class="px-3 py-1 border rounded w-full text-left">Propose baseline vNext</button>
+          <button class="px-3 py-1 border rounded w-full text-left" (click)="switchTo('SPEC')">Open Spec
+            Builder</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+</main>

@@ -1,1 +1,9 @@
-/* You can add global styles to this file, and also import other style files */
+@import "@fontsource/montserrat";
+@tailwind base;
+@tailwind components; 
+@tailwind utilities;
+:root { --brand: #052c65; --brand-ink: #041f47; }
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
