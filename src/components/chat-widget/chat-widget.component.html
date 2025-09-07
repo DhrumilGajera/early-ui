@@ -1,52 +1,129 @@
-<!-- Floating Chat Icon -->
-<div class="fixed bottom-6 right-6 z-50">
-  <button (click)="toggleChat()"
-    class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg bg-[#052c65] text-white hover:opacity-90 transition">
+<!-- Floating Chat Icon (hidden when widget open) -->
+<div class="fixed bottom-6 right-6 z-50" *ngIf="!isOpen">
+  <button
+    (click)="toggleChat()"
+    class="flex items-center justify-center w-12 h-12 rounded-full shadow-lg bg-[#052c65] text-white hover:opacity-90 transition"
+    aria-label="Open chat"
+    title="Open chat"
+  >
     💬
   </button>
 </div>
 
-<!-- Chat Window (Draggable) -->
-<div *ngIf="isOpen"
-     class="fixed bg-white rounded-2xl shadow-lg border border-gray-200 flex flex-col z-50"
-     [ngStyle]="{'top.px': position.y, 'left.px': position.x, 'width.px': size.width, 'height.px': size.height}">
+<!-- Chat Window -->
+<div
+  *ngIf="isOpen"
+  class="fixed z-50 flex flex-col bg-white border border-gray-200 shadow-lg"
+  [ngClass]="{
+    'inset-0 m-0 rounded-none': fullScreen,
+    'rounded-2xl': !fullScreen
+  }"
+  [ngStyle]="getPanelStyle()"
+  role="dialog"
+  aria-modal="false"
+  aria-label="Eerly AI Consultant"
+>
+  <!-- Header (drag handle) -->
+  <div
+    class="flex items-center justify-between p-3 border-b cursor-move select-none"
+    (mousedown)="startDrag($event)"
+    (touchstart)="startDrag($event)"
+  >
+    <div class="flex items-center gap-2">
+      <span class="font-semibold text-sm">Eerly AI Consultant</span>
+      <span class="text-xs text-gray-400 hidden sm:inline">— assistant</span>
+    </div>
 
-  <!-- Header (Drag Handle) -->
-  <div class="bg-white border-b rounded-t-2xl flex justify-between items-center p-4 cursor-move"
-       (mousedown)="startDrag($event)">
-    <span class="font-semibold">Eerly AI Consultant</span>
-    <button (click)="toggleChat()" class="text-gray-400 hover:text-gray-600 px-2 py-1 rounded">&times;</button>
+    <div class="flex items-center gap-2">
+      <!-- Fullscreen toggle -->
+      <button
+        (click)="toggleFullScreen($event)"
+        (mousedown)="$event.stopPropagation()"
+        (touchstart)="$event.stopPropagation()"
+        class="p-2 rounded hover:bg-gray-100 transition text-gray-600"
+        title="Toggle full screen"
+        [attr.aria-pressed]="fullScreen"
+        aria-label="Toggle full screen"
+      >
+        <ng-container *ngIf="!fullScreen; else exitFs">
+          <!-- Enter full screen icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+            <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+            <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+            <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+          </svg>
+        </ng-container>
+        <ng-template #exitFs>
+          <!-- Exit full screen icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M9 3H5a2 2 0 0 0-2 2v4" />
+            <path d="M15 3h4a2 2 0 0 1 2 2v4" />
+            <path d="M9 21H5a2 2 0 0 1-2-2v-4" />
+            <path d="M15 21h4a2 2 0 0 0 2-2v-4" />
+          </svg>
+        </ng-template>
+      </button>
+
+      <!-- Close -->
+      <button
+        (click)="toggleChat()"
+        (mousedown)="$event.stopPropagation()"
+        (touchstart)="$event.stopPropagation()"
+        class="p-2 rounded hover:bg-gray-100 transition text-gray-600"
+        title="Close chat"
+        aria-label="Close chat"
+      >
+        &times;
+      </button>
+    </div>
   </div>
 
   <!-- Chat Feed -->
-  <div id="assistantFeed" class="p-3 space-y-2 text-sm overflow-auto flex-1">
-    <div class="text-xs text-gray-500">Suggested prompts</div>
-    <div class="flex flex-wrap gap-2">
+  <div id="assistantFeed" class="p-3 overflow-auto flex-1 min-h-24 chat-scroll">
+    <div class="text-xs text-gray-500 mb-2">Suggested prompts</div>
+
+    <div class="flex flex-wrap gap-2 mb-3">
       <button class="px-2 py-1 border rounded text-xs hover:bg-gray-100">Create Workshop Plan</button>
       <button class="px-2 py-1 border rounded text-xs hover:bg-gray-100">Show gaps in Coverage</button>
       <button class="px-2 py-1 border rounded text-xs hover:bg-gray-100">List open decisions</button>
       <button class="px-2 py-1 border rounded text-xs hover:bg-gray-100">Open latest evidence</button>
     </div>
-    <div class="border rounded-lg p-2 mt-2">
+
+    <div class="border rounded-lg p-3">
       <div class="text-gray-700">User: what changed since v0.9?</div>
-      <div class="text-gray-700 mt-1">Eerly: 3 items—JE threshold wording normalized, SAC feed scheduled, VAT codes harmonized.</div>
+      <div class="text-gray-700 mt-1">Eerly: 3 items — JE threshold wording normalized, SAC feed scheduled, VAT
+        codes harmonized.</div>
     </div>
+
+    <!-- spacer to ensure input isn't overlapping on small heights -->
+    <div class="h-6"></div>
   </div>
 
   <!-- Input Area -->
   <div class="p-3 border-t flex items-center gap-2">
-    <input class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#052c65]"
-           placeholder="Ask Eerly anything..." />
-    <button (click)="sendMessage()"
-            class="px-3 py-2 rounded-lg text-white bg-[#052c65] hover:bg-[#031d40] transition">
+    <input
+      class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#052c65]"
+      placeholder="Ask Eerly anything..."
+      [(ngModel)]="userMessage"
+      (keyup.enter)="sendMessage()"
+      aria-label="Message input"
+    />
+    <button (click)="sendMessage()" class="px-3 py-2 rounded-lg text-white bg-[#052c65] hover:bg-[#031d40] transition"
+      aria-label="Send message">
       Send
     </button>
   </div>
 
-  <!-- Resize Handle (Top-Right) -->
-  <div class="absolute top-0 right-0 w-6 h-6 cursor-ne-resize bg-gray-300 rounded-bl-lg"
-       (mousedown)="startResize($event)"></div>
+  <!-- Resize Handle (bottom-right) -->
+  <div
+    *ngIf="!fullScreen"
+    class="absolute bottom-3 right-3 w-4 h-4 cursor-se-resize bg-gray-200 rounded-sm"
+    (mousedown)="startResize($event)"
+    (touchstart)="startResize($event)"
+    title="Drag to resize"
+    aria-hidden="true"
+  ></div>
 </div>
-
-
-

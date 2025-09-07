@@ -1,3 +1,36 @@
-.chat-drag {
-  transition: top 0.05s linear, left 0.05s linear;
+/* small helper styles */
+
+/* custom scrollbar for chat feed */
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107,114,128,0.4) transparent;
+}
+
+.chat-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: rgba(107, 114, 128, 0.35);
+  border-radius: 6px;
+}
+.chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ensure the panel has a sensible z-index and shadow (Tailwind applied too) */
+:host ::ng-deep .rounded-2xl {
+  overflow: hidden;
+}
+
+/* small visual tweak for resize handle */
+:host ::ng-deep .cursor-se-resize {
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+
+/* On very small devices, ensure the input area is comfortable */
+@media (max-width: 480px) {
+  :host ::ng-deep input {
+    font-size: 14px;
+  }
 }
