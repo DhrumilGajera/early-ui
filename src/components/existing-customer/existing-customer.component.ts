@@ -151,7 +151,7 @@ export class ExistingCustomerComponent {
     if (!this.allSpecAccepted) return;
     const token = { projectId:"PRJ-2043", projectName:"ACME S/4 Finance Rollout", versionId:"baseline-v1", versionHash:"B4SE1INE9SHA" };
     try { localStorage.setItem('eerly_open_post_build', JSON.stringify(token)); } catch (e) {}
-    alert("Baseline published. Handoff token saved. Open Integrated Workspace to continue.");
+    // alert("Baseline published. Handoff token saved. Open Integrated Workspace to continue.");
     this.switchTo('SYNC');
   }
 
@@ -161,12 +161,12 @@ export class ExistingCustomerComponent {
     this.tkStatus = "Connected to Jira cloud org globex.atlassian.net";
   }
   tkImport() {
-    alert("Imported last 50 tickets (stub)");
+    // alert("Imported last 50 tickets (stub)");
   }
 
   /* ===== SYNC ===== */
   openWorkspace() {
     try { localStorage.setItem('eerly_open_post_build', JSON.stringify({ projectId:"PRJ-2043", projectName:"ACME S/4 Finance Rollout", versionId:"baseline-v1", versionHash:"B4SE1INE9SHA" })); } catch(e) {}
-    alert("Workspace handoff set. Open Integrated Workspace (with Post-Build).");
+    // alert("Workspace handoff set. Open Integrated Workspace (with Post-Build).");
   }
 }

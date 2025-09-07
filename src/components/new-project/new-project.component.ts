@@ -155,7 +155,7 @@ export class NewProjectComponent {
         data_transformation: this.state.includeData
       }
     };
-    alert('Project created:\n' + JSON.stringify(payload, null, 2));
+    // alert('Project created:\n' + JSON.stringify(payload, null, 2));
     this.closeModal();
   }
 

@@ -198,7 +198,7 @@ export class MigrationComponent implements OnDestroy {
         versionHash: 'M1GPL4N9SHA'
       }));
     } catch (e) {}
-    alert('Plan signed. Handoff token saved for Integrated Workspace.');
+    // alert('Plan signed. Handoff token saved for Integrated Workspace.');
   }
 
   openWorkspace() {
@@ -210,7 +210,7 @@ export class MigrationComponent implements OnDestroy {
         versionHash: 'M1GPL4N9SHA'
       }));
     } catch (e) {}
-    alert('Open Integrated Workspace to continue.');
+    // alert('Open Integrated Workspace to continue.');
   }
 
   openHerePostView() {

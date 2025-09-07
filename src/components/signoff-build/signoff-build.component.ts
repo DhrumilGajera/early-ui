@@ -60,6 +60,7 @@ interface Insight {
   styleUrl: './signoff-build.component.scss'
 })
 export class SignoffBuildComponent {
+  isPaused = false;
   // ---------------- Context ----------------
   ctx = {
     projectName: 'ACME S/4 Finance',
@@ -95,9 +96,9 @@ export class SignoffBuildComponent {
 
   // ---------------- Approvals ----------------
   reviewers = [
-    { id: 'u1', name:'Stack Holder-1', role: 'Approver', status: 'pending' },
-    { id: 'u2', name:'Stack Holder-2', role: 'Reviewer', status: 'pending' },
-    { id: 'u3', name:'Stack Holder-3', role: 'Approver', status: 'approved' }
+    { id: 'u1', name: 'Stake-holder-1', role: 'Approver', status: 'pending' },
+    { id: 'u2', name: 'Stake-holder-2', role: 'Reviewer', status: 'pending' },
+    { id: 'u3', name: 'Stake-holder-3', role: 'Approver', status: 'approved' }
   ];
 
   // ---------------- Build ----------------
@@ -159,19 +160,19 @@ export class SignoffBuildComponent {
     this.insights = [];
   }
   get pendingCount() {
-  return this.tasks.filter(t => t.status === 'pending').length;
-}
-get runningCount() {
-  return this.tasks.filter(t => t.status === 'running').length;
-}
-get doneCount() {
-  return this.tasks.filter(t => t.status === 'done').length;
-}
-get blockedCount() {
-  return this.tasks.filter(t => t.status === 'blocked').length;
-}
+    return this.tasks.filter(t => t.status === 'pending').length;
+  }
+  get runningCount() {
+    return this.tasks.filter(t => t.status === 'running').length;
+  }
+  get doneCount() {
+    return this.tasks.filter(t => t.status === 'done').length;
+  }
+  get blockedCount() {
+    return this.tasks.filter(t => t.status === 'blocked').length;
+  }
 
- // Context
+  // Context
   // ctx = { signed: false, versionId: 'v0.9' };
   // view: 'signoff' | 'build' = 'signoff';
 
@@ -243,6 +244,7 @@ get blockedCount() {
 
   pauseRun() {
     if (this.runTimer) {
+      this.isPaused = true;
       clearInterval(this.runTimer);
       this.runTimer = null;
     }
@@ -250,6 +252,7 @@ get blockedCount() {
 
   resumeRun() {
     if (!this.runTimer && this.progress < 100) {
+      this.isPaused = false;
       this.startTimer();
     }
   }

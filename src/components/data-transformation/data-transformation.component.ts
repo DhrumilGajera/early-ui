@@ -113,16 +113,16 @@ export class DataTransformationComponent implements OnInit, AfterViewInit, OnDes
 
   ngAfterViewInit(): void {
     // compute SVG lines when view is ready
-    setTimeout(() => this.updateLines(), 200);
-    window.addEventListener('resize', this.onWindowResize);
+    // setTimeout(() => this.updateLines(), 200);
+    // window.addEventListener('resize', this.onWindowResize);
   }
 
   ngOnDestroy(): void {
-    if (this.runTimer) clearInterval(this.runTimer);
-    window.removeEventListener('resize', this.onWindowResize);
+    // if (this.runTimer) clearInterval(this.runTimer);
+    // window.removeEventListener('resize', this.onWindowResize);
   }
 
-  private onWindowResize = () => this.updateLines();
+  // private onWindowResize = () => this.updateLines();
 
   // ---------- Screen navigation ----------
   setScreen(s: Screen) { this.screen = s; setTimeout(() => this.updateLines(), 100); }
@@ -240,9 +240,11 @@ export class DataTransformationComponent implements OnInit, AfterViewInit, OnDes
 
   showHistory(id: string) {
     const m = this.mappings.find(x => x.id === id);
-    if (!m) { alert('Not found'); return; }
+    if (!m) {
+      //  alert('Not found');
+       return; }
     const lines = (m.history || []).map(h => `• ${new Date(h.ts).toLocaleString()} – ${h.field}: ${String(h.from || '—')} → ${String(h.to || '—')}`).join('\n');
-    alert(lines || 'No history yet.');
+    // alert(lines || 'No history yet.');
   }
 
   addHistory(mapId: string, entry: any) {
@@ -253,14 +255,16 @@ export class DataTransformationComponent implements OnInit, AfterViewInit, OnDes
   snapshotMappings() {
     const snap: Snapshot = { id: uid('snap-'), label: `Snapshot ${this.snapshots.length + 1}`, ts: Date.now(), data: JSON.parse(JSON.stringify(this.mappings)) };
     this.snapshots = [...this.snapshots, snap];
-    alert('Snapshot saved.');
+    // alert('Snapshot saved.');
   }
   restoreSnapshot(id: string) {
     const s = this.snapshots.find(x => x.id === id);
-    if (!s) { alert('Snapshot not found'); return; }
+    if (!s) { 
+      // alert('Snapshot not found');
+       return; }
     this.mappings = JSON.parse(JSON.stringify(s.data));
     setTimeout(() => this.updateLines(), 100);
-    alert('Snapshot restored.');
+    // alert('Snapshot restored.');
   }
 
   // ---------- Sync decisions ----------
@@ -270,7 +274,7 @@ export class DataTransformationComponent implements OnInit, AfterViewInit, OnDes
       if (m.decisionRef === 'MDM-COUNTRY-STD') return { ...m, rule: 'map_country' };
       return m;
     });
-    alert('Decisions synced.');
+    // alert('Decisions synced.');
     setTimeout(() => this.updateLines(), 100);
   }
 
@@ -307,7 +311,7 @@ export class DataTransformationComponent implements OnInit, AfterViewInit, OnDes
   }
 
   showAlert(msg: string) {
-    alert(msg);
+    // alert(msg);
   }
 
   get noHistory(): boolean {

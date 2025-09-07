@@ -16,19 +16,40 @@
       </span>
     </div>
 
-    <div class="flex items-center gap-2">
-      <button class="px-3 py-1 rounded-lg text-white" [ngStyle]="{background: BRAND}" (click)="topNew()">+ New Script
-        (AI)</button>
-      <button class="px-3 py-1 border rounded-lg" (click)="topPkgs()">Packages</button>
-      <button class="px-3 py-1 border rounded-lg" (click)="topRuns()">Runs</button>
-      <button class="px-3 py-1 border rounded-lg" (click)="topEvid()">Evidence</button>
-      <!-- <button class="px-3 py-1 border rounded-lg" (click)="topCov()">Coverage</button> -->
-      <button class="px-3 py-1 border rounded-lg" (click)="openImport()">Import from Config Hub</button>
-      <!-- <div class="w-8 h-8 rounded-full bg-gray-300"></div> -->
+    <div class="flex items-center gap-6 text-sm font-medium border-b">
+      <button class="relative px-2 py-1 hover:text-[#052c65] transition" [style.color]="activeChild === 'NEW'"
+        (click)="topNew()">
+        + New Script (AI)
+        <span *ngIf="activeChild === 'NEW'" class="absolute bottom-0 left-0 w-full h-0.5 rounded"
+          style="background-color:#052c65;"></span>
+      </button>
+
+      <button class="relative px-2 py-1 hover:text-[#052c65] transition" [style.color]="activeChild === 'PKGS'"
+        (click)="topPkgs()">
+        Packages
+        <span *ngIf="activeChild === 'PKGS'" class="absolute bottom-0 left-0 w-full h-0.5 rounded"
+          style="background-color:#052c65;"></span>
+      </button>
+
+      <button class="relative px-2 py-1 hover:text-[#052c65] transition" [style.color]="activeChild === 'RUNS'"
+        (click)="topRuns()">
+        Runs
+        <span *ngIf="activeChild === 'RUNS'" class="absolute bottom-0 left-0 w-full h-0.5 rounded"
+          style="background-color:#052c65;"></span>
+      </button>
+
+      <button class="relative px-2 py-1 hover:text-[#052c65] transition" [style.color]="activeChild === 'EVID'"
+        (click)="topEvid()">
+        Evidence
+        <span *ngIf="activeChild === 'EVID'" class="absolute bottom-0 left-0 w-full h-0.5 rounded"
+          style="background-color:#052c65;"></span>
+      </button>
+      <button class="px-3 py-1 rounded-lg text-white font-medium hover:brightness-90 transition"
+        [ngStyle]="{ background: BRAND }" (click)="openImport()">
+        Import from Config Hub
+      </button>
     </div>
-    <!-- <ng-template #backBtnBlock>
-      <button class="px-3 py-1 border rounded-lg" (click)="goDash()">Back</button>
-    </ng-template> -->
+
   </div>
 </header>
 
@@ -86,7 +107,7 @@
                 <th class="py-2">ID</th>
                 <th>Name</th>
                 <th>Spec</th>
-                <th>Types</th>
+                <!-- <th>Types</th> -->
                 <th>Owner</th>
                 <th>Last</th>
                 <th class="text-right">Actions</th>
@@ -97,7 +118,7 @@
                 <td class="py-2 font-mono text-xs">{{ s.id }}</td>
                 <td>{{ s.name }}</td>
                 <td class="font-mono text-xs">{{ s.spec }}</td>
-                <td class="text-xs space-x-1">
+                <!-- <td class="text-xs space-x-1">
                   <ng-container *ngFor="let t of s.types">
                     <span class="pill" [ngClass]="{
                       'bg-green-100 text-green-700': t==='happy',
@@ -105,7 +126,7 @@
                       'bg-amber-100 text-amber-700': t==='negative'
                     }">{{ t }}</span>
                   </ng-container>
-                </td>
+                </td> -->
                 <td>{{ s.owner }}</td>
                 <td>
                   <span class="pill" [ngClass]="{
@@ -522,7 +543,7 @@ role=textbox[name='Amount'][aria-invalid=false]
           <!-- Upload button -->
           <label class="px-3 py-1 rounded-lg text-white cursor-pointer" [ngStyle]="{ 'background-color': BRAND }">
             Upload Evidence
-            <input type="file" hidden  multiple>
+            <input type="file" hidden multiple>
           </label>
         </div>
 

@@ -94,7 +94,6 @@ export class PostBuildComponent {
       <tr>
         <th class="px-3 py-2 border">Process</th>
         <th class="px-3 py-2 border">Test Case</th>
-        <th class="px-3 py-2 border">Type</th>
         <th class="px-3 py-2 border"><button class="px-2 py-1 border rounded text-xs">Move To Test</button></th>
       </tr>
     </thead>
@@ -102,19 +101,16 @@ export class PostBuildComponent {
       <tr>
         <td class="px-3 py-2 border">Journal Entry</td>
         <td class="px-3 py-2 border">Post reversal entry</td>
-        <td class="px-3 py-2 border">Happy Path</td>
         <td class="px-3 py-2 border"><button class="px-2 py-1 border rounded text-xs">Move To Test</button></td>
       </tr>
       <tr>
         <td class="px-3 py-2 border">Journal Entry</td>
         <td class="px-3 py-2 border">Approval workflow</td>
-        <td class="px-3 py-2 border">Edge Case</td>
         <td class="px-3 py-2 border"><button class="px-2 py-1 border rounded text-xs">Move To Test</button></td>
       </tr>
       <tr>
         <td class="px-3 py-2 border">Tax</td>
         <td class="px-3 py-2 border">VAT standardization</td>
-        <td class="px-3 py-2 border">Negative</td>
         <td class="px-3 py-2 border"><button class="px-2 py-1 border rounded text-xs">Move To Test</button></td>
       </tr>
     </tbody>

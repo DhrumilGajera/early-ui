@@ -8,7 +8,7 @@
         </div>
 
         <!-- Center: Navigation Buttons -->
-        <nav class="hidden md:flex items-center gap-3">
+        <!-- <nav class="hidden md:flex items-center gap-3">
             <button class="px-3 py-1 rounded-lg text-white font-medium hover:brightness-90 transition"
                 [ngStyle]="{ 'background-color': BRAND }" (click)="setScreen('IMPORT')">
                 New Import
@@ -32,6 +32,42 @@
             <button class="px-3 py-1 rounded-lg border border-gray-300 font-medium hover:border-gray-400 transition"
                 (click)="setScreen('EXPORTS')">
                 Exports
+            </button>
+        </nav> -->
+        <nav class="flex gap-6 text-sm font-medium border-b">
+            <button class="relative px-2 py-1 hover:text-[#052c65] transition"
+                [style.color]="screen === 'IMPORT' ? '#052c65' : ''" (click)="setScreen('IMPORT')">
+                New Import
+                <span *ngIf="screen === 'IMPORT'" class="absolute bottom-0 left-0 w-full h-0.5 rounded"
+                    style="background-color:#052c65;"></span>
+            </button>
+
+            <button class="relative px-2 py-1 hover:text-[#052c65] transition"
+                [style.color]="screen === 'TABLE' ? '#052c65' : ''" (click)="setScreen('TABLE')">
+                Field Mapping Table
+                <span *ngIf="screen === 'TABLE'" class="absolute bottom-0 left-0 w-full h-0.5 rounded"
+                    style="background-color:#052c65;"></span>
+            </button>
+
+            <button class="relative px-2 py-1 hover:text-[#052c65] transition"
+                [style.color]="screen === 'VALIDATE' ? '#052c65' : ''" (click)="setScreen('VALIDATE')">
+                Validate
+                <span *ngIf="screen === 'VALIDATE'" class="absolute bottom-0 left-0 w-full h-0.5 rounded"
+                    style="background-color:#052c65;"></span>
+            </button>
+
+            <button class="relative px-2 py-1 hover:text-[#052c65] transition"
+                [style.color]="screen === 'RUN' ? '#052c65' : ''" (click)="setScreen('RUN')">
+                Run Transform
+                <span *ngIf="screen === 'RUN'" class="absolute bottom-0 left-0 w-full h-0.5 rounded"
+                    style="background-color:#052c65;"></span>
+            </button>
+
+            <button class="relative px-2 py-1 hover:text-[#052c65] transition"
+                [style.color]="screen === 'EXPORTS' ? '#052c65' : ''" (click)="setScreen('EXPORTS')">
+                Exports
+                <span *ngIf="screen === 'EXPORTS'" class="absolute bottom-0 left-0 w-full h-0.5 rounded"
+                    style="background-color:#052c65;"></span>
             </button>
         </nav>
 
@@ -75,7 +111,7 @@
             </div> -->
 
             <div class="grid grid-cols-12 gap-12">
-                <main  class="col-span-12 lg:col-span-12 space-y-4">
+                <main class="col-span-12 lg:col-span-12 space-y-4">
                     <!-- Recent runs -->
                     <div class="bg-white rounded-xl border overflow-hidden">
                         <div class="px-4 py-3 border-b flex items-center justify-between bg-white">
@@ -249,7 +285,7 @@
                     </div>
                 </div>
             </div>
-              <div class="mt-4 flex gap-2">
+            <div class="mt-4 flex gap-2">
                 <button class="px-3 py-1 border rounded-lg" (click)="setScreen('DASH')">Back</button>
                 <!-- <button class="px-3 py-1 border rounded-lg" (click)="snapshotMappings()">Save Snapshot</button>
                 <button class="px-3 py-1 border rounded-lg" (click)="setScreen('HISTORY')">History</button> -->

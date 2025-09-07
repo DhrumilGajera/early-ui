@@ -61,12 +61,12 @@ interface ConfigProj { id: string; name: string; specs: ConfigSpec[]; }
 @Component({
   selector: 'app-testing-automation',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './testing-automation.component.html',
   styleUrl: './testing-automation.component.scss'
 })
 export class TestingAutomationComponent implements OnInit, OnDestroy {
- readonly BRAND = '#052c65';
+  readonly BRAND = '#052c65';
 
   // ======= STATE =======
   screen: Screen = 'DASH';
@@ -242,13 +242,13 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
     }
     return steps;
   }
-
+  activeChild: string = 'NEW';
   // ======= TOP BAR =======
-  goDash() { this.setScreen('DASH'); }
-  topNew() { this.setScreen('NEW'); }
-  topPkgs() { this.setScreen('PKGS'); }
-  topRuns() { this.setScreen('RUNS'); }
-  topEvid() { this.setScreen('EVID'); }
+  goDash() { this.activeChild = 'DASH'; this.setScreen('DASH'); }
+  topNew() { this.activeChild = 'NEW'; this.setScreen('NEW'); }
+  topPkgs() { this.activeChild = 'PKGS'; this.setScreen('PKGS'); }
+  topRuns() { this.activeChild = 'RUNS'; this.setScreen('RUNS'); }
+  topEvid() { this.activeChild = 'EVID';this.setScreen('EVID'); }
   // topCov() { this.setScreen('COVERAGE'); }
   openImport() { this.importOpen = true; }
   closeImport() { this.importOpen = false; }
@@ -430,7 +430,7 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
   saveScript() {
     const s = this.editScript; if (!s) return;
     // name is bound with ngModel, so just acknowledge
-    window.alert('Script saved');
+    // window.alert('Script saved');
   }
 
   toggleEdRunMenu() {
@@ -452,7 +452,7 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
         ...s.steps[amtIdx],
         selector: "role=textbox[name='Amount'][aria-invalid=false]"
       };
-      window.alert('Applied new selector');
+      // window.alert('Applied new selector');
     }
   }
   applyHealAndRun() {
@@ -465,16 +465,22 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
   miniSend() {
     const v = (this.miniMsg || '').trim();
     if (!v) return;
-    window.alert('Eerly suggests selector for: ' + v);
+    // window.alert('Eerly suggests selector for: ' + v);
     this.miniMsg = '';
   }
 
   // ======= PACKAGES =======
   createPackage() {
     const name = (this.pkgName || '').trim();
-    if (!name) { window.alert('Name required'); return; }
+    if (!name) {
+      // window.alert('Name required');
+      return;
+    }
     const ids = Object.keys(this.pkgInclude).filter(k => this.pkgInclude[k]);
-    if (ids.length === 0) { window.alert('Select at least one script'); return; }
+    if (ids.length === 0) {
+      // window.alert('Select at least one script'); 
+      return;
+    }
     const pkg: Pkg = {
       id: 'P-' + (200 + this.packages.length),
       name,
@@ -520,7 +526,7 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
     j.finishedAt = new Date().toISOString();
   }
   exDownload() {
-    window.alert('Downloading evidence bundle...');
+    // window.alert('Downloading evidence bundle...');
   }
   exShot() {
     const j = this.currentRun; if (!j) return;
@@ -602,7 +608,7 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
       });
     });
     this.scripts = [...created, ...this.scripts];
-    window.alert(`Generated ${created.length} test(s) for ${specId}`);
+    // window.alert(`Generated ${created.length} test(s) for ${specId}`);
     // this.setScreen('COVERAGE');
   }
 
@@ -624,6 +630,6 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
   }
 
   trackByScriptId(index: number, script: any): string {
-  return script.id;
-}
+    return script.id;
+  }
 }
