@@ -46,9 +46,12 @@
           </select>
         </div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div *ngFor="let p of filteredProjects">
-          <div class="rounded-2xl border bg-white p-4">
+
+      <!-- Cards grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+        <div *ngFor="let p of filteredProjects" class="flex">
+          <div class="rounded-2xl border bg-white p-4 flex flex-col justify-between w-full">
+            <!-- Top: Project info -->
             <div class="flex items-start justify-between gap-3">
               <div>
                 <div class="font-medium text-gray-900">{{ p.name }}</div>
@@ -58,16 +61,23 @@
                 {{ p.status }}
               </span>
             </div>
+
+            <!-- Bottom: Actions -->
             <div class="mt-4 flex gap-2 overflow-x-auto">
               <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">Open</button>
-              <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">Go to Workshops</button>
-              <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">Open Build Monitor</button>
+              <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">
+                Go to Workshops
+              </button>
+              <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">
+                Open Build Monitor
+              </button>
               <button class="text-xs rounded-lg border px-3 py-1 hover:border-[#052c65]">Archive</button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
 
     <!-- Right Rail -->
     <div class="col-span-12 lg:col-span-4 space-y-6">
@@ -161,7 +171,8 @@
           <div *ngFor="let m of state.modules"
             class="flex items-center gap-2 px-3 py-1 rounded-xl border ring-1 ring-[#052c65] text-sm text-gray-800">
             <span>{{ m }}</span> <button (click)="removeModule(m)"
-              class="text-gray-500 hover:text-red-600 text-xs font-bold"> ✕ </button> </div>
+              class="text-gray-500 hover:text-red-600 text-xs font-bold"> ✕ </button>
+          </div>
         </div>
       </section> <!-- STEP 3 -->
       <section *ngIf="step===3" class="space-y-4">
