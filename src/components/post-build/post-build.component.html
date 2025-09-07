@@ -534,7 +534,50 @@
             </div>
           </div>
 
-          <div class="p-4 overflow-x-auto" id="pbTestsTable" [innerHTML]="pbTestsTableHtml"></div>
+          <div class="p-4 overflow-x-auto" id="pbTestsTable">
+            <table class="min-w-full text-sm border border-gray-300 text-center">
+              <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                  <th class="px-4 py-2 border border-gray-300">Process</th>
+                  <th class="px-4 py-2 border border-gray-300">Test Case</th>
+                  <th class="px-4 py-2 border border-gray-300">Move To Test</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr>
+                  <td class="px-4 py-2 border border-gray-300">Journal Entry</td>
+                  <td class="px-4 py-2 border border-gray-300">Post reversal entry</td>
+                  <td class="px-4 py-2 border border-gray-300">
+                    <button
+                      class="px-3 py-1 border border-gray-400 rounded-md text-xs font-medium hover:bg-gray-100 transition">
+                      Move To Test
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2 border border-gray-300">Journal Entry</td>
+                  <td class="px-4 py-2 border border-gray-300">Approval workflow</td>
+                  <td class="px-4 py-2 border border-gray-300">
+                    <button
+                      class="px-3 py-1 border border-gray-400 rounded-md text-xs font-medium hover:bg-gray-100 transition">
+                      Move To Test
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2 border border-gray-300">Tax</td>
+                  <td class="px-4 py-2 border border-gray-300">VAT standardization</td>
+                  <td class="px-4 py-2 border border-gray-300">
+                    <button
+                      class="px-3 py-1 border border-gray-400 rounded-md text-xs font-medium hover:bg-gray-100 transition">
+                      Move To Test
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
 
           <!-- <div class="p-4 grid grid-cols-12 gap-4">
             <div class="col-span-12 lg:col-span-8 border rounded-xl p-4">
