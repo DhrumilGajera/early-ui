@@ -200,9 +200,15 @@ export class SignoffBuildComponent {
 
   // Start simulation
   startRun() {
+    this.isRunning = true;
+    this.isPaused = false;
     this.initBuild();
     this.startTimer();
   }
+
+  isRunning = false;
+  // isPaused = false;
+
 
   // Timer loop
   startTimer() {
@@ -213,15 +219,15 @@ export class SignoffBuildComponent {
       if (this.progress === 5) this.setTaskRunning('t1');
       if (this.progress === 20) this.finishTask('t1', {
         screenshots: [
-          { src: 'https://placehold.co/600x360?text=Company+1000', caption: 'SPRO: Company Code 1000 created' },
-          { src: 'https://placehold.co/600x360?text=Company+1100', caption: 'SPRO: Company Code 1100 created' }
+          { src: 'assets/images/screenshot-1.png', caption: 'SPRO: Company Code 1000 created' },
+          { src: 'assets/images/screehshot-2.png', caption: 'SPRO: Company Code 1100 created' }
         ],
         evidence: ['Transport TR12345 exported', 'BAPI_COMPANYCODE_CREATE used'],
         logs: ['Created 1000', 'Created 1100']
       });
       if (this.progress === 25) this.setTaskRunning('t3');
       if (this.progress === 45) this.finishTask('t3', {
-        screenshots: [{ src: 'https://placehold.co/600x360?text=VAT+Codes', caption: 'EU-VAT-2025 uploaded' }],
+        screenshots: [{ src: 'assets/images/screehshot-3.png', caption: 'EU-VAT-2025 uploaded' }],
         evidence: ['EU-VAT-2025.xlsx imported', '57 codes validated'],
         logs: ['Upload start', 'Validation OK']
       });
@@ -229,7 +235,7 @@ export class SignoffBuildComponent {
       if (this.progress === 65) this.blockTask('t2', 'Workflow transport import locked by change freeze (18:00–20:00)');
       if (this.progress === 70) this.setTaskRunning('t4');
       if (this.progress === 90) this.finishTask('t4', {
-        screenshots: [{ src: 'https://placehold.co/600x360?text=SAC+Job', caption: 'SAC job scheduled 02:00 UTC' }],
+        screenshots: [{ src: 'assets/images/screehshot-4.png', caption: 'SAC job scheduled 02:00 UTC' }],
         evidence: ['SAC connection validated', 'Delta partition enabled'],
         logs: ['RFC ping ok', 'Cron saved']
       });
@@ -245,6 +251,7 @@ export class SignoffBuildComponent {
   pauseRun() {
     if (this.runTimer) {
       this.isPaused = true;
+      this.isRunning = true;
       clearInterval(this.runTimer);
       this.runTimer = null;
     }
@@ -252,6 +259,7 @@ export class SignoffBuildComponent {
 
   resumeRun() {
     if (!this.runTimer && this.progress < 100) {
+      this.isRunning = false;
       this.isPaused = false;
       this.startTimer();
     }
@@ -259,6 +267,8 @@ export class SignoffBuildComponent {
 
   stopRun() {
     if (this.runTimer) clearInterval(this.runTimer);
+    this.isRunning = false;
+    this.isPaused = false
     this.runTimer = null;
   }
 
@@ -304,4 +314,14 @@ export class SignoffBuildComponent {
   //   this.view = v;
   //   if (v === 'build') this.initBuild();
   // }
+
+  selectedImage: string | null = null;
+
+  openImage(src: string) {
+    this.selectedImage = src;
+  }
+
+  closeImage() {
+    this.selectedImage = null;
+  }
 }

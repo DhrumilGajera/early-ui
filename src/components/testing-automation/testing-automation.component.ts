@@ -183,6 +183,8 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Seed steps for initial scripts
     this.scripts = this.scripts.map(s => ({ ...s, steps: this.genSteps(s.spec) }));
+    this.progress = 0;
+    this.startProgress22s();
   }
 
   ngOnDestroy(): void {
@@ -242,13 +244,13 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
     }
     return steps;
   }
-  activeChild: string = 'NEW';
+  activeChild: string = '';
   // ======= TOP BAR =======
   goDash() { this.activeChild = 'DASH'; this.setScreen('DASH'); }
   topNew() { this.activeChild = 'NEW'; this.setScreen('NEW'); }
   topPkgs() { this.activeChild = 'PKGS'; this.setScreen('PKGS'); }
   topRuns() { this.activeChild = 'RUNS'; this.setScreen('RUNS'); }
-  topEvid() { this.activeChild = 'EVID';this.setScreen('EVID'); }
+  topEvid() { this.activeChild = 'EVID'; this.setScreen('EVID'); }
   // topCov() { this.setScreen('COVERAGE'); }
   openImport() { this.importOpen = true; }
   closeImport() { this.importOpen = false; }
@@ -631,5 +633,25 @@ export class TestingAutomationComponent implements OnInit, OnDestroy {
 
   trackByScriptId(index: number, script: any): string {
     return script.id;
+  }
+
+  progress = 0;
+  private timer: any;
+
+  startProgress22s() {
+  this.progress = 0;
+  clearInterval(this.timer);
+
+  const totalDuration = 22600; // 24 seconds
+  const steps = 100;           // 100% progress
+  const interval = totalDuration / steps; // 240ms per step
+
+  this.timer = setInterval(() => {
+    if (this.progress < 100) {
+      this.progress++;
+    } else {
+      clearInterval(this.timer);
+    }
+  }, interval);
   }
 }
